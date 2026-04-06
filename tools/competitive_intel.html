@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yowie — Competitive Intelligence Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #1a1915;
+  --bg-card: #23221c;
+  --bg-card-alt: #2a2923;
+  --bg-input: #1e1d18;
+  --border: #3a3830;
+  --border-light: #4a4838;
+  --text-primary: #d4cfc0;
+  --text-secondary: #8a8575;
+  --text-muted: #5a5648;
+  --accent-green: #7a9a6a;
+  --accent-sienna: #c2755a;
+  --accent-gold: #b8a44a;
+  --accent-slate: #6a8a9a;
+  --accent-clay: #9a7a6a;
+  --font-data: 'DM Mono', monospace;
+  --font-display: 'Instrument Serif', Georgia, serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-data);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 700px 500px at 20% 30%, rgba(122,154,106,0.03), transparent),
+    radial-gradient(ellipse 500px 700px at 80% 70%, rgba(194,117,90,0.025), transparent);
+  pointer-events:none;
+  z-index:0;
+}
+
+.app {
+  position:relative;
+  z-index:1;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+.header {
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.header::after {
+  content:'';
+  position:absolute;
+  bottom:-1px;
+  left:0;
+  width:100px;
+  height:1px;
+  background:var(--accent-green);
+}
+.brand-mark {
+  font-family: var(--font-display);
+  font-size: 38px;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+.brand-mark em { font-style:italic; color:var(--accent-green); }
+.header-sub {
+  font-size:11px;
+  color:var(--text-muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-top:2px;
+}
+
+/* Card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.card-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  letter-spacing: 0.3px;
+}
+
+/* Brand Selector */
+.selector-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  align-items: flex-end;
+}
+.selector-group { flex: 1; }
+.selector-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.selector {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-data);
+  font-size: 13px;
+  padding: 10px 14px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235a5648' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.selector:focus { outline: none; border-color: var(--accent-green); }
+.selector option { background: var(--bg-deep); color: var(--text-primary); }
+
+.vs-badge {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-style: italic;
+  color: var(--text-muted);
+  padding: 0 8px 10px;
+  flex-shrink: 0;
+}
+
+/* Comparison Grid */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: var(--border);
+  margin-bottom: 24px;
+}
+.compare-grid > div {
+  background: var(--bg-card);
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(58,56,48,0.3);
+}
+.compare-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 14px;
+}
+.compare-header {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 10px 16px;
+  background: var(--bg-card-alt);
+}
+.compare-val {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.compare-val strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.compare-val .tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.compare-val .tag.strength {
+  border-color: rgba(122,154,106,0.4);
+  color: var(--accent-green);
+  background: rgba(122,154,106,0.06);
+}
+.compare-val .tag.weakness {
+  border-color: rgba(194,117,90,0.4);
+  color: var(--accent-sienna);
+  background: rgba(194,117,90,0.06);
+}
+.compare-val .highlight {
+  color: var(--accent-green);
+  font-weight: 500;
+}
+
+/* Positioning Map */
+.map-container {
+  position: relative;
+  height: 380px;
+}
+
+/* Channel Matrix */
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.matrix-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 400;
+  border-bottom: 1px solid var(--border);
+}
+.matrix-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(58,56,48,0.3);
+  color: var(--text-secondary);
+}
+.matrix-table tr:hover td { color: var(--text-primary); }
+.dot-yes {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+}
+.dot-partial {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+}
+.dot-no {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--text-muted);
+}
+.dot-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dot-legend span { display: flex; align-items: center; gap: 6px; }
+
+/* Layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* SWOT mini */
+.swot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.swot-cell {
+  background: var(--bg-card);
+  padding: 16px;
+}
+.swot-cell-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+.swot-cell ul {
+  list-style: none;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.swot-cell ul li::before {
+  content: '—';
+  margin-right: 6px;
+  color: var(--text-muted);
+}
+
+/* Yowie advantage callout */
+.advantage-bar {
+  background: rgba(122,154,106,0.06);
+  border: 1px solid rgba(122,154,106,0.2);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.advantage-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--accent-green);
+  margin-bottom: 8px;
+}
+.advantage-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 900px) {
+  .compare-grid { grid-template-columns: 120px 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .selector-row { flex-direction: column; gap: 12px; }
+  .vs-badge { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="header">
+  <div class="brand-mark">Yow<em>i</em>e</div>
+  <div class="header-sub">Competitive Intelligence Tracker</div>
+</header>
+
+<!-- Brand Selector -->
+<div class="card">
+  <div class="card-title">Compare Brands</div>
+  <div class="card-desc">Select any two brands to see a side-by-side comparison across all dimensions</div>
+  <div class="selector-row">
+    <div class="selector-group">
+      <div class="selector-label">Brand A</div>
+      <select class="selector" id="brandA" onchange="renderComparison()">
+        <option value="yowie" selected>Yowie</option>
+        <option value="osprey">Osprey</option>
+        <option value="yeti">YETI</option>
+        <option value="stanley">Stanley</option>
+        <option value="hydroflask">Hydro Flask</option>
+      </select>
+    </div>
+    <div class="vs-badge">vs.</div>
+    <div class="selector-group">
+      <div class="selector-label">Brand B</div>
+      <select class="selector" id="brandB" onchange="renderComparison()">
+        <option value="yowie">Yowie</option>
+        <option value="osprey" selected>Osprey</option>
+        <option value="yeti">YETI</option>
+        <option value="stanley">Stanley</option>
+        <option value="hydroflask">Hydro Flask</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Yowie Advantage -->
+<div class="advantage-bar" id="advantageBar"></div>
+
+<!-- Side-by-Side Comparison -->
+<div id="comparisonGrid"></div>
+
+<!-- SWOT for both -->
+<div class="two-col" id="swotSection"></div>
+
+<!-- Positioning Map + Channel Matrix -->
+<div class="two-col" style="margin-top:20px;">
+  <div class="card">
+    <div class="card-title">Positioning Map</div>
+    <div class="card-desc">Price point vs. audience age center (bubble = relative revenue)</div>
+    <div class="map-container"><canvas id="posMap"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Channel Matrix</div>
+    <div class="card-desc">Marketing channel usage across all five brands</div>
+    <div id="channelMatrix"></div>
+  </div>
+</div>
+
+<!-- Full Landscape Table -->
+<div class="card" style="margin-top:20px;">
+  <div class="card-title">Competitive Landscape</div>
+  <div class="card-desc">All five brands at a glance</div>
+  <div style="overflow-x:auto;" id="landscapeTable"></div>
+</div>
+
+<footer class="footer">
+  <span>Yowie Competitive Intelligence &middot; Data as of early 2025</span>
+  <span>Competitor data from public sources &middot; Yowie is simulated</span>
+</footer>
+</div>
+
+<script>
+// ============================================================
+// BRAND DATA
+// ============================================================
+const BRANDS = {
+  yowie: {
+    name: 'Yowie',
+    color: 'rgba(122,154,106,0.9)',
+    colorDim: 'rgba(122,154,106,0.15)',
+    founded: '2024',
+    parent: 'Independent (DTC)',
+    category: 'Premium backpacks',
+    positioning: 'Understated, durable, anti-hype. For experienced outdoor adults who know what good gear looks like.',
+    tagline: '"For people who know what they\'re doing outdoors"',
+    heroProduct: 'Basecamp 45L Pack',
+    priceRange: '$385',
+    priceNum: 385,
+    audienceAge: '40–65',
+    audienceAgeCenter: 52,
+    audienceIncome: '$90K–$180K',
+    audienceProfile: 'Experienced backcountry users, buy-once mindset, skeptical of marketing, values durability over trend',
+    revenueEst: '$260K (Year 1)',
+    revenueScale: 0.3,
+    channels: {
+      meta: true, instagram: true, facebook: true, tiktok: false,
+      youtube: false, email: true, dtc: true, retail: false,
+      influencer: false, sponsorship: false, content: true, pr: false,
+    },
+    strengths: [
+      'Single-SKU focus — all R&D into one product',
+      'Premium materials (1680D sailcloth nylon)',
+      'Lifetime warranty, no receipt required',
+      'Authentic voice that resonates with experienced users',
+      'Zero brand debt — no legacy positioning to overcome',
+    ],
+    weaknesses: [
+      'No brand awareness — year 1 startup',
+      'Single product limits cross-sell / repeat purchase',
+      'Small marketing budget ($25K campaign)',
+      'No retail distribution',
+      'Unproven at scale',
+    ],
+    opportunities: [
+      'Underserved 40–65 demographic in DTC outdoor',
+      'Anti-hype positioning differentiates from YETI/Stanley',
+      'Word-of-mouth potential with experienced community',
+    ],
+    threats: [
+      'Osprey dominates pack category with brand trust',
+      'YETI could expand into premium packs',
+      'Price sensitivity in uncertain economy',
+    ],
+  },
+  osprey: {
+    name: 'Osprey',
+    color: 'rgba(106,138,154,0.9)',
+    colorDim: 'rgba(106,138,154,0.15)',
+    founded: '1974',
+    parent: 'Helen of Troy (HELE)',
+    category: 'Backpacks & packs',
+    positioning: 'Premium but accessible. Innovation-led with best-in-class fit systems. Adventure and trust.',
+    tagline: '"All Mighty Guarantee"',
+    heroProduct: 'Atmos AG 50 ($300), Aether 45 ($320), Exos 48 ($250)',
+    priceRange: '$220–$320 (40-50L range)',
+    priceNum: 290,
+    audienceAge: '25–45',
+    audienceAgeCenter: 35,
+    audienceIncome: '$75K+',
+    audienceProfile: 'Outdoor enthusiasts, gear researchers, reads reviews on Switchback Travel and REI before buying',
+    revenueEst: '~$300–350M (segment)',
+    revenueScale: 35,
+    channels: {
+      meta: true, instagram: true, facebook: true, tiktok: true,
+      youtube: true, email: true, dtc: true, retail: true,
+      influencer: true, sponsorship: true, content: true, pr: true,
+    },
+    strengths: [
+      'Industry-leading warranty (All Mighty Guarantee)',
+      'Consistent top rankings in gear reviews',
+      'Broad product line (daypack to expedition)',
+      'Strong fit systems (Anti-Gravity suspension)',
+      '50 years of brand trust',
+    ],
+    weaknesses: [
+      'Helen of Troy ownership creates margin pressure',
+      'Limited DTC presence vs competitors',
+      'Some quality-control concerns post-acquisition',
+      'Premium pricing pressure from REI Co-op, Decathlon',
+      'Complex catalog may dilute brand focus',
+    ],
+    opportunities: [
+      'Growing travel-pack segment (Farpoint/Fairview)',
+      'Sustainability initiatives resonate with younger buyers',
+      'International expansion potential',
+    ],
+    threats: [
+      'Parent company financial headwinds / potential divestiture',
+      'Budget brands improving quality rapidly',
+      'Niche DTC brands (like Yowie) targeting specific segments',
+    ],
+  },
+  yeti: {
+    name: 'YETI',
+    color: 'rgba(194,117,90,0.9)',
+    colorDim: 'rgba(194,117,90,0.15)',
+    founded: '2006',
+    parent: 'Public (NYSE: YETI)',
+    category: 'Coolers, drinkware, bags',
+    positioning: 'Ultra-durable premium outdoor. "Built for the Wild." Community/tribe identity over features.',
+    tagline: '"Built for the Wild"',
+    heroProduct: 'Tundra Cooler ($250–$1,300), Rambler Tumbler ($25–$60)',
+    priceRange: '$25–$1,300 (category-dependent)',
+    priceNum: 45,
+    audienceAge: '25–54',
+    audienceAgeCenter: 38,
+    audienceIncome: '$75K+',
+    audienceProfile: 'Hunting, fishing, camping, overlanding. Buy-it-for-life + aspirational status buyers.',
+    revenueEst: '~$1.7–1.8B (2024)',
+    revenueScale: 175,
+    channels: {
+      meta: true, instagram: true, facebook: true, tiktok: true,
+      youtube: true, email: true, dtc: true, retail: true,
+      influencer: true, sponsorship: true, content: true, pr: true,
+    },
+    strengths: [
+      'Iconic brand loyalty, cult-like community',
+      'Category creator in premium coolers',
+      'Strong DTC channel (~55% of sales)',
+      'Drinkware is repeatable, giftable purchase engine',
+      'High gross margins (~57%)',
+    ],
+    weaknesses: [
+      'Premium pricing limits addressable market',
+      'Stanley surge eroded drinkware mindshare',
+      'Backpack/pack category is not a strength',
+      'Limited international presence (~15% of revenue)',
+      'Vulnerable to trade-down in recessions',
+    ],
+    opportunities: [
+      'International expansion (Europe, Australia)',
+      'Customization/personalization on DTC',
+      'Adjacent category expansion',
+    ],
+    threats: [
+      'Stanley, Owala capturing trend-driven buyers',
+      'RTIC and budget alternatives improving quality',
+      'Brand fatigue in saturated drinkware market',
+    ],
+  },
+  stanley: {
+    name: 'Stanley',
+    color: 'rgba(184,164,74,0.9)',
+    colorDim: 'rgba(184,164,74,0.15)',
+    founded: '1913',
+    parent: 'PMI Worldwide (private)',
+    category: 'Drinkware & tumblers',
+    positioning: 'Trend-driven lifestyle hydration. From rugged heritage to social-media-era collectible brand.',
+    tagline: '"Built for Life"',
+    heroProduct: 'Quencher H2.0 40oz ($45), Classic Bottle ($50)',
+    priceRange: '$35–$55',
+    priceNum: 45,
+    audienceAge: '18–40',
+    audienceAgeCenter: 28,
+    audienceIncome: '$50K+',
+    audienceProfile: 'Trend-conscious women 18–40, wellness-oriented, TikTok-active, collectibility-driven (color drops)',
+    revenueEst: '~$750M–$1B (2023–24)',
+    revenueScale: 85,
+    channels: {
+      meta: true, instagram: true, facebook: true, tiktok: true,
+      youtube: false, email: true, dtc: true, retail: true,
+      influencer: true, sponsorship: false, content: false, pr: true,
+    },
+    strengths: [
+      '110+ year heritage creates trust foundation',
+      'Viral social-media growth engine (TikTok)',
+      'Collectibility model drives repeat purchase',
+      'Strong retail distribution (Target, Starbucks collabs)',
+      '~10x revenue growth in 4 years',
+    ],
+    weaknesses: [
+      'Heavy dependence on one SKU (Quencher)',
+      'Trend-driven demand is inherently fragile',
+      'Lead-content controversy damaged trust (2023–24)',
+      'No backpack/pack products at all',
+      'Vulnerable to "next trend" competitors (Owala)',
+    ],
+    opportunities: [
+      'International expansion',
+      'Adjacent product categories',
+      'Male demographic largely untapped',
+    ],
+    threats: [
+      'Trend cycle could move to next brand',
+      'Quality/safety concerns from rapid scaling',
+      'Owala and Simple Modern capturing Gen Z attention',
+    ],
+  },
+  hydroflask: {
+    name: 'Hydro Flask',
+    color: 'rgba(154,122,106,0.9)',
+    colorDim: 'rgba(154,122,106,0.15)',
+    founded: '2009',
+    parent: 'Helen of Troy (HELE)',
+    category: 'Insulated bottles & drinkware',
+    positioning: 'Design-led, lifestyle-forward insulated bottles. More colorful and expressive than YETI.',
+    tagline: '"Let\'s Go"',
+    heroProduct: 'Wide Mouth 32oz ($45), All Around Tumbler 40oz ($40)',
+    priceRange: '$28–$55',
+    priceNum: 45,
+    audienceAge: '18–35',
+    audienceAgeCenter: 26,
+    audienceIncome: '$50K–$100K',
+    audienceProfile: 'Gen Z / young millennials, outdoor-adjacent lifestyle, aesthetics-driven, sustainability-conscious',
+    revenueEst: '~$300–350M (2024 est.)',
+    revenueScale: 33,
+    channels: {
+      meta: true, instagram: true, facebook: false, tiktok: true,
+      youtube: false, email: true, dtc: true, retail: true,
+      influencer: true, sponsorship: false, content: false, pr: true,
+    },
+    strengths: [
+      'Strong brand affinity with younger consumers',
+      'Iconic color palette and design differentiation',
+      'Broad retail distribution (REI, Dick\'s, Whole Foods)',
+      'TempShield insulation tech claim',
+      'Campus ambassador programs',
+    ],
+    weaknesses: [
+      'Lost cultural momentum to Stanley post-2020',
+      'Parent company (Helen of Troy) facing financial headwinds',
+      'No backpack/pack products',
+      'Higher price vs commodity alternatives',
+      'Limited international presence',
+    ],
+    opportunities: [
+      'Trail Series (lightweight) opens new segment',
+      'Expanded tumbler line to counter Stanley',
+      'Sustainability/B-Corp positioning',
+    ],
+    threats: [
+      'Potential divestiture by Helen of Troy',
+      'Stanley and Owala capturing market share',
+      'Commoditization of insulated drinkware',
+    ],
+  },
+};
+
+const CHANNEL_LIST = [
+  {key:'meta', label:'Meta Ads'},
+  {key:'instagram', label:'Instagram'},
+  {key:'facebook', label:'Facebook'},
+  {key:'tiktok', label:'TikTok'},
+  {key:'youtube', label:'YouTube'},
+  {key:'email', label:'Email'},
+  {key:'dtc', label:'DTC Website'},
+  {key:'retail', label:'Retail Partners'},
+  {key:'influencer', label:'Influencer/Creator'},
+  {key:'sponsorship', label:'Sponsorships'},
+  {key:'content', label:'Content Marketing'},
+  {key:'pr', label:'PR / Earned Media'},
+];
+
+// ============================================================
+// CHART
+// ============================================================
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#8a8575';
+
+let posChart;
+
+function initPositioningMap() {
+  const ctx = document.getElementById('posMap');
+  const brandKeys = Object.keys(BRANDS);
+  const datasets = brandKeys.map(k => {
+    const b = BRANDS[k];
+    return {
+      label: b.name,
+      data: [{x: b.priceNum, y: b.audienceAgeCenter, r: Math.max(Math.sqrt(b.revenueScale) * 3, 6)}],
+      backgroundColor: b.colorDim,
+      borderColor: b.color,
+      borderWidth: 2,
+      hoverBorderWidth: 3,
+    };
+  });
+
+  posChart = new Chart(ctx, {
+    type: 'bubble',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          title: { display: true, text: 'HERO PRODUCT PRICE', font: {family:"'DM Mono'",size:10}, color:'#5a5648', padding:8 },
+          grid: { color:'rgba(58,56,48,0.3)', drawBorder:false },
+          ticks: { padding:8, callback: v => '$' + v },
+          min: 0,
+          max: 450,
+        },
+        y: {
+          title: { display: true, text: 'AUDIENCE AGE CENTER', font: {family:"'DM Mono'",size:10}, color:'#5a5648', padding:8 },
+          grid: { color:'rgba(58,56,48,0.3)', drawBorder:false },
+          ticks: { padding:8 },
+          min: 18,
+          max: 60,
+        },
+      },
+      plugins: {
+        legend: { labels: { boxWidth:10, boxHeight:10, padding:14 } },
+        tooltip: {
+          backgroundColor:'#1a1915',
+          borderColor:'#3a3830',
+          borderWidth:1,
+          cornerRadius:0,
+          padding:10,
+          callbacks: {
+            label: ctx => {
+              const b = BRANDS[Object.keys(BRANDS)[ctx.datasetIndex]];
+              return [
+                b.name,
+                'Price: ' + b.priceRange,
+                'Audience: ' + b.audienceAge,
+                'Revenue: ' + b.revenueEst,
+              ];
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+// ============================================================
+// COMPARISON RENDERER
+// ============================================================
+function renderComparison() {
+  const aKey = document.getElementById('brandA').value;
+  const bKey = document.getElementById('brandB').value;
+  const a = BRANDS[aKey];
+  const b = BRANDS[bKey];
+
+  // Advantage bar
+  const advBar = document.getElementById('advantageBar');
+  if (aKey === 'yowie' || bKey === 'yowie') {
+    const other = aKey === 'yowie' ? b : a;
+    let advText = '';
+    if (other.name === 'Osprey') {
+      advText = 'Osprey is the closest direct competitor in packs. Yowie differentiates on single-product focus (no catalog dilution), older audience targeting (40–65 vs 25–45), and anti-hype positioning. Osprey has 50 years of brand trust and retail distribution — Yowie competes on materials specificity and voice authenticity.';
+    } else if (other.name === 'YETI') {
+      advText = 'YETI dominates premium outdoor but is weak in backpacks. Yowie occupies a niche YETI doesn\'t serve — single-product, spec-driven, older demographic. YETI\'s community/tribe model is aspirational; Yowie\'s is respectful and understated. Different audiences, minimal direct overlap.';
+    } else if (other.name === 'Stanley') {
+      advText = 'Stanley and Yowie are near-opposites: trend-driven vs. anti-trend, Gen Z vs. 40–65, collectible vs. buy-once. No direct product overlap. The comparison illuminates Yowie\'s positioning by contrast — everything Stanley does loudly, Yowie does quietly.';
+    } else if (other.name === 'Hydro Flask') {
+      advText = 'Hydro Flask targets a younger, aesthetics-driven buyer with no pack products. Yowie\'s advantage is category focus and audience specificity. Both face the challenge of competing against larger brands, but in entirely different product categories.';
+    }
+    advBar.style.display = 'block';
+    advBar.innerHTML = `<div class="advantage-title">Yowie vs. ${other.name}</div><div class="advantage-text">${advText}</div>`;
+  } else {
+    advBar.style.display = 'none';
+  }
+
+  // Comparison grid
+  const rows = [
+    ['Founded', a.founded, b.founded],
+    ['Parent', a.parent, b.parent],
+    ['Category', a.category, b.category],
+    ['Positioning', a.positioning, b.positioning],
+    ['Tagline', a.tagline, b.tagline],
+    ['Hero Product', a.heroProduct, b.heroProduct],
+    ['Price Range', a.priceRange, b.priceRange],
+    ['Audience Age', a.audienceAge, b.audienceAge],
+    ['Audience Income', a.audienceIncome, b.audienceIncome],
+    ['Audience Profile', a.audienceProfile, b.audienceProfile],
+    ['Est. Revenue', a.revenueEst, b.revenueEst],
+  ];
+
+  let gridHTML = `
+    <div class="compare-header"></div>
+    <div class="compare-header" style="color:${a.color}">${a.name}</div>
+    <div class="compare-header" style="color:${b.color}">${b.name}</div>
+  `;
+  rows.forEach(([label, va, vb]) => {
+    gridHTML += `
+      <div class="compare-label">${label}</div>
+      <div class="compare-val">${va}</div>
+      <div class="compare-val">${vb}</div>
+    `;
+  });
+
+  // Channel comparison row
+  const aChannelCount = Object.values(a.channels).filter(Boolean).length;
+  const bChannelCount = Object.values(b.channels).filter(Boolean).length;
+  gridHTML += `
+    <div class="compare-label">Channels Used</div>
+    <div class="compare-val"><strong>${aChannelCount}</strong> of ${CHANNEL_LIST.length}</div>
+    <div class="compare-val"><strong>${bChannelCount}</strong> of ${CHANNEL_LIST.length}</div>
+  `;
+
+  document.getElementById('comparisonGrid').innerHTML = `<div class="compare-grid">${gridHTML}</div>`;
+
+  // SWOT
+  function renderSwot(brand, color) {
+    return `<div class="card">
+      <div class="card-title" style="color:${color}">${brand.name}</div>
+      <div class="card-desc">Strengths, weaknesses, opportunities, threats</div>
+      <div class="swot-grid">
+        <div class="swot-cell">
+          <div class="swot-cell-title" style="color:var(--accent-green)">Strengths</div>
+          <ul>${brand.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="swot-cell">
+          <div class="swot-cell-title" style="color:var(--accent-sienna)">Weaknesses</div>
+          <ul>${brand.weaknesses.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="swot-cell">
+          <div class="swot-cell-title" style="color:var(--accent-slate)">Opportunities</div>
+          <ul>${brand.opportunities.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="swot-cell">
+          <div class="swot-cell-title" style="color:var(--accent-gold)">Threats</div>
+          <ul>${brand.threats.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('swotSection').innerHTML = renderSwot(a, a.color) + renderSwot(b, b.color);
+}
+
+// ============================================================
+// CHANNEL MATRIX
+// ============================================================
+function renderChannelMatrix() {
+  const brandKeys = Object.keys(BRANDS);
+  let html = '<table class="matrix-table"><thead><tr><th>Channel</th>';
+  brandKeys.forEach(k => {
+    html += `<th style="color:${BRANDS[k].color}">${BRANDS[k].name}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  CHANNEL_LIST.forEach(ch => {
+    html += `<tr><td>${ch.label}</td>`;
+    brandKeys.forEach(k => {
+      const val = BRANDS[k].channels[ch.key];
+      if (val === true) html += '<td><span class="dot-yes"></span></td>';
+      else if (val === 'partial') html += '<td><span class="dot-partial"></span></td>';
+      else html += '<td><span class="dot-no"></span></td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div class="dot-legend"><span><span class="dot-yes"></span> Active</span><span><span class="dot-no"></span> Not used</span></div>';
+
+  document.getElementById('channelMatrix').innerHTML = html;
+}
+
+// ============================================================
+// LANDSCAPE TABLE
+// ============================================================
+function renderLandscapeTable() {
+  const brandKeys = Object.keys(BRANDS);
+  const fields = [
+    ['Category', 'category'],
+    ['Hero Product', 'heroProduct'],
+    ['Price Range', 'priceRange'],
+    ['Audience', 'audienceAge'],
+    ['Revenue', 'revenueEst'],
+    ['Positioning', 'positioning'],
+  ];
+
+  let html = '<table class="matrix-table"><thead><tr><th></th>';
+  brandKeys.forEach(k => {
+    html += `<th style="color:${BRANDS[k].color}">${BRANDS[k].name}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  fields.forEach(([label, key]) => {
+    html += `<tr><td style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">${label}</td>`;
+    brandKeys.forEach(k => {
+      html += `<td style="font-size:12px;">${BRANDS[k][key]}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  document.getElementById('landscapeTable').innerHTML = html;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+initPositioningMap();
+renderComparison();
+renderChannelMatrix();
+renderLandscapeTable();
+</script>
+</body>
+</html>

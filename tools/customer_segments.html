@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yowie — Customer Segment Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1915;--bg-card:#23221c;--bg-alt:#2a2923;--bg-in:#1e1d18;
+  --bdr:#3a3830;--bdr-lt:#4a4838;
+  --t1:#d4cfc0;--t2:#8a8575;--t3:#5a5648;
+  --grn:#7a9a6a;--grn-b:#9aba8a;--grn-d:rgba(122,154,106,.12);
+  --sie:#c2755a;--sie-d:rgba(194,117,90,.12);
+  --gld:#b8a44a;--gld-d:rgba(184,164,74,.12);
+  --slt:#6a8a9a;--slt-d:rgba(106,138,154,.12);
+  --cly:#9a7a6a;--cly-d:rgba(154,122,106,.12);
+  --fd:'DM Mono',monospace;--fh:'Instrument Serif',Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:var(--fd);font-size:13px;line-height:1.5}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 20% 30%,rgba(122,154,106,.03),transparent),radial-gradient(ellipse 500px 700px at 80% 70%,rgba(194,117,90,.025),transparent);pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:1340px;margin:0 auto;padding:40px 32px 80px}
+
+.header{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--bdr);position:relative}
+.header::after{content:'';position:absolute;bottom:-1px;left:0;width:100px;height:1px;background:var(--grn)}
+.bm{font-family:var(--fh);font-size:38px;letter-spacing:-.5px}
+.bm em{font-style:italic;color:var(--grn)}
+.hs{font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+.card{background:var(--bg-card);border:1px solid var(--bdr);padding:24px;margin-bottom:20px;transition:border-color .3s}
+.card:hover{border-color:var(--bdr-lt)}
+.ct{font-family:var(--fh);font-size:20px;margin-bottom:4px}
+.cd{font-size:11px;color:var(--t3);margin-bottom:20px;letter-spacing:.3px}
+
+/* Overview KPIs */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);margin-bottom:24px}
+.kpi{background:var(--bg-card);padding:18px 16px;text-align:center}
+.kpi-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.kpi-v{font-size:22px;font-weight:500;letter-spacing:-.5px}
+.kpi-s{font-size:11px;color:var(--t2);margin-top:4px}
+
+/* Segment selector */
+.seg-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);margin-bottom:24px}
+.seg-tab{background:var(--bg-card);padding:16px;cursor:pointer;transition:background .2s;border:none;font-family:var(--fd);text-align:left;color:var(--t1)}
+.seg-tab:hover{background:var(--bg-alt)}
+.seg-tab.active{background:var(--bg-alt)}
+.seg-tab-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.seg-tab-name{font-size:12px;font-weight:500;margin-bottom:4px;display:flex;align-items:center}
+.seg-tab-size{font-size:20px;font-weight:500;margin-bottom:2px}
+.seg-tab-pct{font-size:11px;color:var(--t3)}
+
+/* Segment detail */
+.seg-detail{display:none}
+.seg-detail.active{display:block}
+
+.seg-hero{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px}
+
+.profile-section{margin-bottom:20px}
+.profile-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+
+.profile-grid{display:grid;grid-template-columns:120px 1fr;gap:0}
+.profile-grid .label{padding:8px 0;font-size:11px;color:var(--t3);border-bottom:1px solid rgba(58,56,48,.3)}
+.profile-grid .value{padding:8px 0;font-size:13px;color:var(--t2);border-bottom:1px solid rgba(58,56,48,.3)}
+
+/* Stat bars */
+.stat-bar{margin-bottom:12px}
+.stat-bar-hdr{display:flex;justify-content:space-between;margin-bottom:4px}
+.stat-bar-label{font-size:11px;color:var(--t2)}
+.stat-bar-val{font-size:12px;font-weight:500}
+.stat-bar-track{height:6px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+
+/* Messaging box */
+.msg-box{background:var(--bg-in);border:1px solid var(--bdr);padding:20px}
+.msg-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.msg-approach{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px}
+.msg-example{padding:16px;border-left:2px solid var(--grn);background:rgba(122,154,106,.04);font-size:14px;font-family:Georgia,serif;font-style:italic;color:var(--t1);line-height:1.6;margin-bottom:8px}
+.msg-example-label{font-size:10px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:6px}
+
+/* LTV box */
+.ltv-box{background:var(--bg-in);border:1px solid var(--bdr);padding:20px}
+.ltv-value{font-size:28px;font-weight:500;margin-bottom:4px}
+.ltv-detail{font-size:11px;color:var(--t3);line-height:1.6}
+
+/* Charts */
+.ch-wrap{position:relative;height:220px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px}
+.cmp-table th{text-align:left;padding:10px 12px;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;font-weight:400;border-bottom:1px solid var(--bdr)}
+.cmp-table th.n{text-align:right}
+.cmp-table td{padding:10px 12px;border-bottom:1px solid rgba(58,56,48,.3);color:var(--t2)}
+.cmp-table td.n{text-align:right;font-variant-numeric:tabular-nums}
+.cmp-table tr:hover td{color:var(--t1)}
+.cmp-table .hl{color:var(--t1);font-weight:500}
+
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--bdr);font-size:11px;color:var(--t3);display:flex;justify-content:space-between}
+
+@media(max-width:960px){
+  .seg-tabs{grid-template-columns:repeat(3,1fr)}
+  .seg-hero{grid-template-columns:1fr}
+  .two-col,.three-col{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="header">
+  <div class="bm">Yow<em>i</em>e</div>
+  <div class="hs">Customer Segment Analyzer</div>
+</header>
+
+<!-- Overview KPIs -->
+<div class="kpi-strip">
+  <div class="kpi"><div class="kpi-l">Total Orders</div><div class="kpi-v" style="color:var(--t1)">643</div><div class="kpi-s">Apr 2025–Mar 2026</div></div>
+  <div class="kpi"><div class="kpi-l">Total Revenue</div><div class="kpi-v" style="color:var(--grn-b)">$260K</div><div class="kpi-s">690 units sold</div></div>
+  <div class="kpi"><div class="kpi-l">Avg Order Value</div><div class="kpi-v" style="color:var(--gld)">$405</div><div class="kpi-s">$385 base + qty 2 orders</div></div>
+  <div class="kpi"><div class="kpi-l">New Customers</div><div class="kpi-v" style="color:var(--slt)">88%</div><div class="kpi-s">566 of 643</div></div>
+  <div class="kpi"><div class="kpi-l">Segments Identified</div><div class="kpi-v" style="color:var(--sie)">5</div><div class="kpi-s">from purchase patterns</div></div>
+</div>
+
+<!-- Segment Tabs -->
+<div class="seg-tabs" id="segTabs"></div>
+
+<!-- Segment Details -->
+<div id="segDetails"></div>
+
+<!-- Segment Comparison -->
+<div class="card" style="margin-top:24px">
+  <div class="ct">Segment Comparison</div>
+  <div class="cd">All five segments side by side</div>
+  <div style="overflow-x:auto"><table class="cmp-table" id="cmpTable"></table></div>
+</div>
+
+<!-- Charts Row -->
+<div class="two-col" style="margin-top:20px">
+  <div class="card">
+    <div class="ct">Revenue by Segment</div>
+    <div class="cd">Estimated revenue contribution</div>
+    <div class="ch-wrap"><canvas id="chRevSeg"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ct">Segment Distribution</div>
+    <div class="cd">Order volume by segment</div>
+    <div class="ch-wrap"><canvas id="chDistSeg"></canvas></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <span>Yowie Customer Segments &middot; Based on 643 orders, Apr 2025–Mar 2026</span>
+  <span>Segments derived from purchase patterns, geography, and attribution data</span>
+</footer>
+</div>
+
+<script>
+const PRICE = 385;
+
+const SEGMENTS = [
+  {
+    id: 'core_loyalist',
+    name: 'Core Loyalists',
+    shortName: 'Core',
+    color: 'rgba(122,154,106,0.9)',
+    colorDim: 'rgba(122,154,106,0.15)',
+    orders: 142,
+    pctOfTotal: 22.1,
+    revenue: 57620,
+    avgOrderValue: 406,
+    profile: {
+      region: 'Mountain West (75%), Pacific Northwest (25%)',
+      channel: 'Organic search (42%), Direct (27%)',
+      age: '45–60',
+      income: '$110K–$180K',
+      type: '81% new, 19% returning (highest return rate)',
+      discount: '8% used discount codes (lowest)',
+      qty2: '7% ordered quantity 2',
+    },
+    description: 'The heartland of Yowie\'s audience. These are experienced backcountry users in the Mountain West who found the brand through search or typed the URL directly. They don\'t need convincing — they read specs, compared materials, and decided. Lowest discount usage means they\'re not price-sensitive. Highest return rate (19%) suggests early word-of-mouth within tight-knit outdoor communities in Montana, Wyoming, Colorado.',
+    psychographic: 'Buy-once mindset. Researches gear thoroughly before purchasing. Trusts materials specs over marketing claims. Already owns quality gear and is replacing something worn out. Recommends gear to friends by handing it to them at a trailhead.',
+    ltv: 620,
+    ltvDetail: 'Base purchase ($385) + 15% probability of second purchase within 2 years (gift or replacement for partner) + high referral value (~1.2 referred customers per buyer)',
+    ltvColor: 'var(--grn-b)',
+    messagingApproach: 'Don\'t sell to this segment — inform them. They\'re already interested. Lead with specs, materials data, and construction details. Keep copy minimal. They respect restraint and distrust anything that tries too hard.',
+    messagingExample: '"1680D sailcloth nylon. Thermoformed HDPE frame. YKK AquaGuard zippers. $385.\n\nThat\'s the pitch. The pack speaks for itself."',
+    messagingLabel: 'Spec-forward, minimal',
+    channels: [{name:'Organic Search',pct:42},{name:'Direct',pct:27},{name:'Email',pct:18},{name:'Referral',pct:13}],
+    seasonality: [0.8,1.0,1.3,1.5,1.4,1.2,1.1,0.7,0.5,0.5,0.6,0.9],
+  },
+  {
+    id: 'engaged_subscriber',
+    name: 'Engaged Subscribers',
+    shortName: 'Subscribers',
+    color: 'rgba(106,138,154,0.9)',
+    colorDim: 'rgba(106,138,154,0.15)',
+    orders: 132,
+    pctOfTotal: 20.5,
+    revenue: 52140,
+    avgOrderValue: 395,
+    profile: {
+      region: 'Pacific Northwest (48%), Northeast (24%)',
+      channel: 'Email (54%), Organic search (28%)',
+      age: '40–55',
+      income: '$90K–$150K',
+      type: '87% new, 13% returning',
+      discount: '12% used WELCOME10',
+      qty2: '5% ordered quantity 2',
+    },
+    description: 'Subscribers who were nurtured through the email sequence before converting. Pacific Northwest over-indexes here — outdoor culture in Portland, Seattle, and Bend creates an audience that subscribes to gear newsletters and reads them. Higher WELCOME10 usage (12%) suggests they signed up for the list, received the welcome offer, and used it. They need multiple touchpoints before purchasing.',
+    psychographic: 'Deliberate decision-makers. Signed up for the email list weeks or months before buying. Values the brand story and materials narrative. Reads every email — open rates for this segment are above 40%. Willing to use a discount code but would have bought regardless.',
+    ltv: 540,
+    ltvDetail: 'Base purchase ($385) + 10% repeat probability + strong email engagement creates upsell surface for future products + moderate referral value (~0.8 per buyer)',
+    ltvColor: 'var(--slt)',
+    messagingApproach: 'This segment responds to narrative and materials storytelling. The email sequence (sailcloth nylon story, Wind River Range trip report) is built for them. Don\'t rush the conversion — they convert when they\'re ready. The "Still here when you\'re ready" approach works best.',
+    messagingExample: '"Most packs use 500D or 1000D Cordura. It\'s fine. It works. It wears out.\n\nThe Basecamp uses 1680D sailcloth nylon. It costs us 3x more. We use it anyway."',
+    messagingLabel: 'Narrative, materials-focused',
+    channels: [{name:'Email',pct:54},{name:'Organic Search',pct:28},{name:'Direct',pct:12},{name:'Referral',pct:6}],
+    seasonality: [0.9,1.0,1.2,1.3,1.3,1.2,1.1,0.8,0.7,0.6,0.7,0.9],
+  },
+  {
+    id: 'discovery_buyer',
+    name: 'Discovery Buyers',
+    shortName: 'Discovery',
+    color: 'rgba(194,117,90,0.9)',
+    colorDim: 'rgba(194,117,90,0.15)',
+    orders: 182,
+    pctOfTotal: 28.3,
+    revenue: 71610,
+    avgOrderValue: 393,
+    profile: {
+      region: 'Distributed — Mountain West (30%), PNW (27%), Northeast (26%)',
+      channel: 'Paid Social (100% — this is the segment definition)',
+      age: '40–65',
+      income: '$90K–$160K',
+      type: '93% new, 7% returning (lowest return rate)',
+      discount: '13% used WELCOME10, 5% used FRIEND15',
+      qty2: '8% ordered quantity 2',
+    },
+    description: 'The largest segment by volume. These customers discovered Yowie through Meta ads. They\'re geographically distributed and have the highest new-customer rate (93%) — this is the brand\'s growth engine. Lower average order value ($393 vs $406 for Core) suggests slightly more price awareness. Higher WELCOME10 usage confirms they\'re new to the brand and responsive to a first-purchase incentive.',
+    psychographic: 'Active on Facebook/Instagram. Scrolls gear content. Responds to ad creative that shows specs rather than lifestyle imagery. Makes purchase decisions within 1–3 ad exposures. More price-aware than Core Loyalists but still willing to spend $385 for quality.',
+    ltv: 445,
+    ltvDetail: 'Base purchase ($385) + 7% repeat probability + lower referral value (~0.4 per buyer) — this segment is acquired, not organic, so ongoing engagement requires continued ad spend or successful conversion to email subscriber',
+    ltvColor: 'var(--sie)',
+    messagingApproach: 'Lead with a hook that stops the scroll — trip scenario or anti-hype contrast. The first 125 characters of the Meta ad must earn the "See more" click. Specs in the body, not the headline. Avoid anything that looks like every other outdoor ad.',
+    messagingExample: '"Five days in the Wind River Range. 38 lbs over granite passes. An afternoon thunderstorm that filled every zipper with grit.\n\nEverything still worked."',
+    messagingLabel: 'Hook-first, scroll-stopping',
+    channels: [{name:'Paid Social',pct:100}],
+    seasonality: [0.8,1.0,1.3,1.4,1.3,1.2,1.1,0.7,0.6,0.5,0.6,0.9],
+  },
+  {
+    id: 'gift_buyer',
+    name: 'Gift Buyers',
+    shortName: 'Gifters',
+    color: 'rgba(184,164,74,0.9)',
+    colorDim: 'rgba(184,164,74,0.15)',
+    orders: 102,
+    pctOfTotal: 15.9,
+    revenue: 44550,
+    avgOrderValue: 437,
+    profile: {
+      region: 'Northeast (38%), Mountain West (28%), PNW (22%)',
+      channel: 'Organic search (34%), Paid social (25%), Referral (21%)',
+      age: '45–65',
+      income: '$120K–$180K',
+      type: '90% new, 10% returning',
+      discount: '8% used discount codes',
+      qty2: '46% ordered quantity 2 (defining trait)',
+    },
+    description: 'Identified by quantity-2 orders (buying for themselves and a partner or friend) plus Northeast over-representation and high referral channel weight. Highest average order value ($437) reflects the double-unit purchases. Strong referral channel (21%) suggests they heard about Yowie from someone who already owns one. Northeast skew may reflect a culture of giving quality gear as significant gifts.',
+    psychographic: 'Buys gear as a considered gift. The $385 price point makes the Basecamp a meaningful present, not a casual one. These buyers are often purchasing for a spouse, sibling, or long-time trip partner. They value the warranty as part of the gift — "this will last them years."',
+    ltv: 710,
+    ltvDetail: 'Base purchase ($770 avg for qty 2) + creates a new Yowie user who may become a Core Loyalist + highest per-order revenue + gift recipients drive organic word-of-mouth',
+    ltvColor: 'var(--gld)',
+    messagingApproach: 'Don\'t market this as a "gift guide" product — that\'s too generic. Instead, position the Basecamp as the kind of gear someone earns by knowing someone who pays attention. The warranty is the gift message: "This will outlast anything else you give them."',
+    messagingExample: '"You know someone who\'s carried the wrong pack for too long.\n\n$385. Lifetime warranty. No receipt required — they won\'t need to return it."',
+    messagingLabel: 'Gift-aware, relationship-driven',
+    channels: [{name:'Organic Search',pct:34},{name:'Paid Social',pct:25},{name:'Referral',pct:21},{name:'Email',pct:12},{name:'Direct',pct:8}],
+    seasonality: [0.6,0.7,0.8,1.0,1.0,1.2,1.5,1.4,1.6,0.8,0.7,0.7],
+  },
+  {
+    id: 'referral_network',
+    name: 'Referral Network',
+    shortName: 'Referrals',
+    color: 'rgba(154,122,106,0.9)',
+    colorDim: 'rgba(154,122,106,0.15)',
+    orders: 85,
+    pctOfTotal: 13.2,
+    revenue: 34610,
+    avgOrderValue: 407,
+    profile: {
+      region: 'Mountain West (32%), Northeast (25%), PNW (24%)',
+      channel: 'Referral (46%), Organic search (30%), Direct (24%)',
+      age: '40–58',
+      income: '$100K–$170K',
+      type: '85% new, 15% returning',
+      discount: '46% used FRIEND15 (defining trait)',
+      qty2: '6% ordered quantity 2',
+    },
+    description: 'Customers acquired through word-of-mouth, identified by FRIEND15 discount code usage and referral channel attribution. This is the segment Yowie\'s brand voice is designed to create — people who heard about the pack from someone they trust. Second-highest return rate (15%) and high direct-visit rate (24%) suggest these customers become brand-aware through personal recommendation, then visit the site directly later.',
+    psychographic: 'Trusts peer recommendations over advertising. Heard about Yowie at a trailhead, a gear room, or over a campfire. The FRIEND15 code is their entry point, but the real conversion driver is the friend\'s endorsement. These buyers become referrers themselves — the network is self-reinforcing.',
+    ltv: 580,
+    ltvDetail: 'Base purchase ($385, minus 15% FRIEND15 discount = $327 first purchase) + 15% repeat probability + highest referral multiplier (~1.5 referred customers per buyer) — lower initial revenue but strongest network effect',
+    ltvColor: 'var(--cly)',
+    messagingApproach: 'Don\'t try to replace the friend\'s recommendation — amplify it. The landing page and product page should confirm what the referrer already said. Keep messaging factual so it matches the word-of-mouth ("my buddy told me it\'s sailcloth nylon, not Cordura"). The FRIEND15 code should feel like an insider gesture, not a promotion.',
+    messagingExample: '"Someone handed you this link because they carry the Basecamp.\n\nThey already told you why. We\'ll just show you the specs."',
+    messagingLabel: 'Confirmation, not persuasion',
+    channels: [{name:'Referral',pct:46},{name:'Organic Search',pct:30},{name:'Direct',pct:24}],
+    seasonality: [0.7,0.9,1.1,1.3,1.4,1.3,1.2,0.8,0.6,0.5,0.6,0.8],
+  },
+];
+
+const MONTHS_SHORT = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+// ============================================================
+// CHARTS
+// ============================================================
+Chart.defaults.font.family="'DM Mono',monospace";
+Chart.defaults.font.size=11;
+Chart.defaults.color='#8a8575';
+
+function initCharts(){
+  new Chart(document.getElementById('chRevSeg'),{
+    type:'doughnut',
+    data:{
+      labels:SEGMENTS.map(s=>s.name),
+      datasets:[{
+        data:SEGMENTS.map(s=>s.revenue),
+        backgroundColor:SEGMENTS.map(s=>s.colorDim),
+        borderColor:SEGMENTS.map(s=>s.color),
+        borderWidth:2,
+      }],
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{
+        legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:10,font:{size:10}}},
+        tooltip:{backgroundColor:'#1a1915',borderColor:'#3a3830',borderWidth:1,cornerRadius:0,padding:10,
+          callbacks:{label:ctx=>'$'+ctx.raw.toLocaleString()+' ('+((ctx.raw/260530)*100).toFixed(1)+'%)'}},
+      },
+    },
+  });
+
+  new Chart(document.getElementById('chDistSeg'),{
+    type:'bar',
+    data:{
+      labels:SEGMENTS.map(s=>s.shortName),
+      datasets:[{
+        label:'Orders',
+        data:SEGMENTS.map(s=>s.orders),
+        backgroundColor:SEGMENTS.map(s=>s.colorDim),
+        borderColor:SEGMENTS.map(s=>s.color),
+        borderWidth:1,
+        borderRadius:2,
+      }],
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      scales:{
+        x:{grid:{color:'rgba(58,56,48,.3)',drawBorder:false},ticks:{padding:8}},
+        y:{grid:{display:false},ticks:{padding:8}},
+      },
+      plugins:{legend:{display:false},
+        tooltip:{backgroundColor:'#1a1915',borderColor:'#3a3830',borderWidth:1,cornerRadius:0,padding:10,
+          callbacks:{label:ctx=>ctx.raw+' orders ('+((ctx.raw/643)*100).toFixed(1)+'%)'}},
+      },
+    },
+  });
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+let activeSegment = 0;
+
+function renderTabs(){
+  document.getElementById('segTabs').innerHTML = SEGMENTS.map((s,i)=>`
+    <button class="seg-tab ${i===activeSegment?'active':''}" onclick="selectSegment(${i})">
+      <div class="seg-tab-name"><span class="seg-tab-dot" style="background:${s.color}"></span>${s.name}</div>
+      <div class="seg-tab-size">${s.orders}</div>
+      <div class="seg-tab-pct">${s.pctOfTotal}% of orders</div>
+    </button>
+  `).join('');
+}
+
+function renderDetails(){
+  document.getElementById('segDetails').innerHTML = SEGMENTS.map((s,i)=>{
+    const profileRows = Object.entries(s.profile).map(([k,v])=>{
+      const labels = {region:'Region',channel:'Channel',age:'Age Est.',income:'Income Est.',type:'Customer Type',discount:'Discount Use',qty2:'Qty 2 Orders'};
+      return `<div class="label">${labels[k]||k}</div><div class="value">${v}</div>`;
+    }).join('');
+
+    const channelBars = s.channels.map(c=>`
+      <div class="stat-bar">
+        <div class="stat-bar-hdr">
+          <span class="stat-bar-label">${c.name}</span>
+          <span class="stat-bar-val" style="color:${s.color}">${c.pct}%</span>
+        </div>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${c.pct}%;background:${s.color}"></div></div>
+      </div>
+    `).join('');
+
+    return `<div class="seg-detail ${i===activeSegment?'active':''}" id="seg-${s.id}">
+      <div class="seg-hero">
+        <div>
+          <div class="card" style="border-color:${s.color.replace('0.9','0.3')}">
+            <div class="ct" style="color:${s.color}">${s.name}</div>
+            <div class="cd">${s.orders} orders &middot; ${s.pctOfTotal}% of total &middot; $${(s.revenue/1000).toFixed(0)}K revenue</div>
+            <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:20px">${s.description}</p>
+
+            <div class="profile-section">
+              <div class="profile-title">Demographics &amp; Purchase Pattern</div>
+              <div class="profile-grid">${profileRows}</div>
+            </div>
+
+            <div class="profile-section">
+              <div class="profile-title">Psychographic Profile</div>
+              <p style="font-size:13px;color:var(--t2);line-height:1.7">${s.psychographic}</p>
+            </div>
+          </div>
+
+          <!-- Messaging -->
+          <div class="msg-box">
+            <div class="msg-title">Recommended Messaging Approach</div>
+            <p class="msg-approach">${s.messagingApproach}</p>
+            <div class="msg-example">${s.messagingExample.replace(/\n/g,'<br>')}</div>
+            <div class="msg-example-label">${s.messagingLabel}</div>
+          </div>
+        </div>
+
+        <div>
+          <!-- LTV -->
+          <div class="ltv-box" style="margin-bottom:20px">
+            <div class="profile-title">Estimated Lifetime Value</div>
+            <div class="ltv-value" style="color:${s.ltvColor}">$${s.ltv}</div>
+            <div class="ltv-detail">${s.ltvDetail}</div>
+          </div>
+
+          <!-- Channel Mix -->
+          <div class="card">
+            <div class="profile-title">Acquisition Channels</div>
+            ${channelBars}
+          </div>
+
+          <!-- Key Metrics -->
+          <div class="card" style="margin-top:20px">
+            <div class="profile-title">Key Metrics</div>
+            <div class="stat-bar">
+              <div class="stat-bar-hdr"><span class="stat-bar-label">Avg Order Value</span><span class="stat-bar-val" style="color:var(--t1)">$${s.avgOrderValue}</span></div>
+              <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${(s.avgOrderValue/450)*100}%;background:var(--gld)"></div></div>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-bar-hdr"><span class="stat-bar-label">Est. Lifetime Value</span><span class="stat-bar-val" style="color:${s.ltvColor}">$${s.ltv}</span></div>
+              <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${(s.ltv/750)*100}%;background:${s.color}"></div></div>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-bar-hdr"><span class="stat-bar-label">% of Total Orders</span><span class="stat-bar-val" style="color:var(--t1)">${s.pctOfTotal}%</span></div>
+              <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${s.pctOfTotal}%;background:${s.color}"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderComparisonTable(){
+  const fields = [
+    {label:'Orders',fn:s=>s.orders},
+    {label:'% of Total',fn:s=>s.pctOfTotal+'%'},
+    {label:'Revenue',fn:s=>'$'+(s.revenue/1000).toFixed(0)+'K'},
+    {label:'Avg Order Value',fn:s=>'$'+s.avgOrderValue},
+    {label:'Est. LTV',fn:s=>'$'+s.ltv},
+    {label:'Return Rate',fn:s=>{const rates={core_loyalist:'19%',engaged_subscriber:'13%',discovery_buyer:'7%',gift_buyer:'10%',referral_network:'15%'};return rates[s.id]}},
+    {label:'Top Channel',fn:s=>s.channels[0].name},
+    {label:'Discount Usage',fn:s=>s.profile.discount},
+    {label:'Messaging Style',fn:s=>s.messagingLabel},
+  ];
+
+  let html = '<thead><tr><th></th>';
+  SEGMENTS.forEach(s=>{html+=`<th style="color:${s.color}">${s.shortName}</th>`});
+  html += '</tr></thead><tbody>';
+  fields.forEach(f=>{
+    html += '<tr><td style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">'+f.label+'</td>';
+    SEGMENTS.forEach(s=>{
+      const val = f.fn(s);
+      const isLTV = f.label==='Est. LTV';
+      html += `<td class="n ${isLTV?'hl':''}">${val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  document.getElementById('cmpTable').innerHTML = html;
+}
+
+window.selectSegment = function(i){
+  activeSegment = i;
+  document.querySelectorAll('.seg-tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.seg-detail').forEach((d,j)=>d.classList.toggle('active',j===i));
+};
+
+// INIT
+renderTabs();
+renderDetails();
+renderComparisonTable();
+initCharts();
+</script>
+</body>
+</html>

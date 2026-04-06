@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yowie — Basecamp 45L</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #1c1b17;
+    --bg-warm: #f5f2eb;
+    --bg-cream: #eae6dc;
+    --bg-deep: #141310;
+    --text-light: #e8e4d8;
+    --text-light-secondary: #a8a494;
+    --text-light-muted: #6a665c;
+    --text-dark: #2a2820;
+    --text-dark-secondary: #5a574e;
+    --text-dark-muted: #8a8578;
+    --accent: #6b7f5e;
+    --accent-dim: rgba(107,127,94,0.12);
+    --accent-warm: #8a6f52;
+    --border-light: #d8d3c8;
+    --border-dark: #3a3830;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Source Serif 4', Georgia, serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-light);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ===== REVEAL ANIMATIONS ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.12s; }
+  .reveal-delay-2 { transition-delay: 0.24s; }
+  .reveal-delay-3 { transition-delay: 0.36s; }
+  .reveal-delay-4 { transition-delay: 0.48s; }
+
+  .reveal-line {
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal-line.visible { width: 80px; }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.4s, padding 0.4s;
+  }
+  .nav.scrolled {
+    background: rgba(28,27,23,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border-dark);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--text-light);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+  .nav-logo em { font-style: italic; color: var(--accent); }
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 10px 24px;
+    border: 1px solid var(--border-dark);
+    transition: all 0.3s;
+  }
+  .nav.scrolled .nav-cta { border-color: var(--accent); }
+  .nav-cta:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    padding: 0 40px 80px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, transparent 0%, transparent 40%, rgba(28,27,23,0.6) 70%, rgba(28,27,23,0.95) 100%),
+      radial-gradient(ellipse 120% 80% at 60% 30%, rgba(58,68,48,0.15), transparent);
+    z-index: 1;
+  }
+  /* Simulated hero image area */
+  .hero-image-area {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, #2a3a28 0%, #1c2a1a 30%, #2a2820 60%, #1c1b17 100%);
+    z-index: 0;
+  }
+  .hero-image-area::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z' fill='none' stroke='rgba(107,127,94,0.04)' stroke-width='0.5'/%3E%3C/svg%3E") repeat;
+    opacity: 0.6;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+  }
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    color: var(--text-light);
+    margin-bottom: 24px;
+  }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-family: var(--font-body);
+    font-size: 19px;
+    font-weight: 300;
+    color: var(--text-light-secondary);
+    max-width: 520px;
+    line-height: 1.7;
+  }
+  .hero-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+  .hero-price {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text-light);
+    letter-spacing: -0.5px;
+  }
+  .hero-warranty {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-light-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-left: 40px;
+    border-left: 1px solid var(--border-dark);
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    right: 40px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .scroll-hint span {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-light-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 48px;
+    background: var(--border-dark);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: -48px;
+    left: 0;
+    width: 1px;
+    height: 48px;
+    background: var(--accent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(96px); }
+  }
+
+  /* ===== SECTION UTILITIES ===== */
+  .section-dark {
+    background: var(--bg-dark);
+    color: var(--text-light);
+  }
+  .section-light {
+    background: var(--bg-warm);
+    color: var(--text-dark);
+  }
+  .section-deep {
+    background: var(--bg-deep);
+    color: var(--text-light);
+  }
+
+  .section-pad {
+    padding: 120px 40px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .container-narrow {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 400;
+  }
+  .tag-green { color: var(--accent); }
+  .tag-muted-light { color: var(--text-light-muted); }
+  .tag-muted-dark { color: var(--text-dark-muted); }
+
+  .section-heading {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-bottom: 24px;
+  }
+
+  .section-heading em {
+    font-style: italic;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border-dark);
+    margin: 0;
+  }
+  .divider-light {
+    height: 1px;
+    background: var(--border-light);
+  }
+
+  /* ===== INTRO ===== */
+  .intro-text {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 300;
+    line-height: 1.4;
+    letter-spacing: -0.5px;
+    max-width: 700px;
+  }
+  .intro-text strong {
+    font-weight: 500;
+  }
+
+  /* ===== FEATURES GRID ===== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border-dark);
+    border: 1px solid var(--border-dark);
+    margin-top: 56px;
+  }
+  .feature {
+    background: var(--bg-dark);
+    padding: 40px 32px;
+    transition: background 0.3s;
+  }
+  .feature:hover {
+    background: rgba(107,127,94,0.06);
+  }
+  .feature-number {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+  .feature-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .feature-desc {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-light-secondary);
+    line-height: 1.7;
+  }
+
+  /* ===== SPECS TABLE ===== */
+  .specs-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .specs-narrative {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text-dark-secondary);
+    line-height: 1.8;
+  }
+  .specs-narrative p { margin-bottom: 20px; }
+  .specs-narrative strong {
+    color: var(--text-dark);
+    font-weight: 400;
+  }
+  .specs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .specs-table tr {
+    border-bottom: 1px solid var(--border-light);
+  }
+  .specs-table td {
+    padding: 14px 0;
+    vertical-align: top;
+  }
+  .specs-table td:first-child {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dark-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 140px;
+    padding-right: 20px;
+  }
+  .specs-table td:last-child {
+    font-size: 15px;
+    color: var(--text-dark);
+    font-weight: 400;
+  }
+
+  /* ===== MATERIALS ===== */
+  .materials-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 560px;
+  }
+  .materials-image {
+    background:
+      linear-gradient(135deg, #3a3428 0%, #2a2418 50%, #1c1b17 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .materials-image::after {
+    content: '[ fabric detail close-up ]';
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-light-muted);
+    letter-spacing: 1px;
+  }
+  .materials-content {
+    padding: 72px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .materials-content p {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--text-light-secondary);
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+  .materials-content p:first-of-type {
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--text-light);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  .materials-callout {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-left: 2px solid var(--accent);
+    background: rgba(107,127,94,0.06);
+  }
+  .materials-callout p {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-light-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ===== SOCIAL PROOF ===== */
+  .testimonials {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-top: 56px;
+  }
+  .testimonial {
+    padding: 0;
+  }
+  .testimonial-quote {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text-dark);
+    line-height: 1.55;
+    margin-bottom: 20px;
+    position: relative;
+    padding-left: 24px;
+    border-left: 2px solid var(--border-light);
+  }
+  .testimonial-author {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dark-muted);
+    letter-spacing: 1px;
+    padding-left: 24px;
+  }
+  .testimonial-detail {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-dark-muted);
+    padding-left: 24px;
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  /* ===== WARRANTY ===== */
+  .warranty-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .warranty-terms {
+    list-style: none;
+    margin-top: 32px;
+  }
+  .warranty-terms li {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-dark);
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text-light-secondary);
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .warranty-terms li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .warranty-math {
+    background: rgba(107,127,94,0.08);
+    border: 1px solid var(--border-dark);
+    padding: 40px;
+  }
+  .warranty-math-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-light-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .math-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(58,56,48,0.4);
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .math-row .label { color: var(--text-light-secondary); }
+  .math-row .value { color: var(--text-light); font-weight: 500; }
+  .math-row.highlight { border-bottom: none; margin-top: 8px; padding-top: 16px; border-top: 2px solid var(--accent); }
+  .math-row.highlight .label { color: var(--text-light); }
+  .math-row.highlight .value { color: var(--accent); font-size: 16px; }
+
+  /* ===== FINAL CTA ===== */
+  .cta-section {
+    text-align: center;
+    padding: 140px 40px;
+  }
+  .cta-heading {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    color: var(--text-light);
+  }
+  .cta-sub {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text-light-secondary);
+    margin-bottom: 48px;
+  }
+  .cta-price {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 400;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .cta-warranty-note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-light-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+  .cta-button {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bg-dark);
+    background: var(--accent);
+    text-decoration: none;
+    padding: 18px 52px;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .cta-button:hover {
+    background: #7d9470;
+    transform: translateY(-1px);
+  }
+  .cta-secondary {
+    display: block;
+    margin-top: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-light-muted);
+    letter-spacing: 1px;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    border-top: 1px solid var(--border-dark);
+    padding: 32px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-light-muted);
+    letter-spacing: 0.5px;
+  }
+  .footer a {
+    color: var(--text-light-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .hero { padding: 0 24px 60px; }
+    .section-pad { padding: 80px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .specs-section { grid-template-columns: 1fr; gap: 48px; }
+    .materials-layout { grid-template-columns: 1fr; }
+    .materials-image { min-height: 240px; }
+    .materials-content { padding: 48px 32px; }
+    .testimonials { grid-template-columns: 1fr; gap: 40px; }
+    .warranty-layout { grid-template-columns: 1fr; gap: 48px; }
+    .hero-meta { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .hero-warranty { padding-left: 0; border-left: none; }
+    .nav { padding: 16px 24px; }
+    .scroll-hint { display: none; }
+    .footer { flex-direction: column; gap: 8px; text-align: center; }
+  }
+
+  @media (max-width: 500px) {
+    .hero-title { font-size: 42px; letter-spacing: -1px; }
+    .section-heading { font-size: 32px; }
+    .cta-heading { font-size: 32px; }
+    .cta-price { font-size: 32px; }
+    .feature { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">Yow<em>i</em>e</a>
+  <a href="#buy" class="nav-cta">See the pack</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-image-area"></div>
+  <div class="hero-content">
+    <div class="hero-tag reveal">Basecamp 45L</div>
+    <h1 class="hero-title reveal reveal-delay-1">
+      One pack.<br><em>That's it.</em>
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">
+      Built for people who've carried enough packs to know what matters. And what doesn't.
+    </p>
+    <div class="hero-meta reveal reveal-delay-3">
+      <span class="hero-price">$385</span>
+      <span class="hero-warranty">Lifetime warranty<br>No receipt required</span>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Intro -->
+<section class="section-dark section-pad">
+  <div class="container-narrow">
+    <div class="section-tag tag-green reveal">The idea</div>
+    <div class="reveal-line reveal reveal-delay-1" style="height:1px; background:var(--accent); margin-bottom:32px;"></div>
+    <p class="intro-text reveal reveal-delay-2">
+      We didn't start a gear company to build a catalog. We started it to build <strong>one thing</strong> that doesn't compromise &mdash; a load-bearing tool made from materials that outlast the trends, the seasons, and the trips.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Features -->
+<section class="section-dark section-pad">
+  <div class="container">
+    <div class="section-tag tag-muted-light reveal">Construction</div>
+    <h2 class="section-heading reveal reveal-delay-1" style="color:var(--text-light);">
+      Nothing unnecessary.<br><em>Nothing missing.</em>
+    </h2>
+    <div class="features-grid">
+      <div class="feature reveal">
+        <div class="feature-number">01</div>
+        <div class="feature-title">1680D Sailcloth Nylon</div>
+        <div class="feature-desc">The same material used in commercial rigging and marine sails. Abrasion-resistant, field-repairable, and built to age slowly. Costs 3x more than standard pack fabric.</div>
+      </div>
+      <div class="feature reveal reveal-delay-1">
+        <div class="feature-number">02</div>
+        <div class="feature-title">Thermoformed Framesheet</div>
+        <div class="feature-desc">HDPE framesheet with load-lifter geometry tuned for 30&ndash;40 lb carries. Not a generic insert &mdash; a load-specific structure that puts the weight where your body can handle it.</div>
+      </div>
+      <div class="feature reveal reveal-delay-2">
+        <div class="feature-number">03</div>
+        <div class="feature-title">Single Compartment</div>
+        <div class="feature-desc">One main compartment with one internal divider. No over-organization, no gimmick pockets, no features that earn their place in focus groups instead of on trail.</div>
+      </div>
+      <div class="feature reveal reveal-delay-3">
+        <div class="feature-number">04</div>
+        <div class="feature-title">YKK AquaGuard Zippers</div>
+        <div class="feature-desc">Water-resistant zippers throughout. No rain cover needed, no fumbling with covers in a downpour. The pack handles weather the way your shelter does &mdash; quietly.</div>
+      </div>
+      <div class="feature reveal reveal-delay-4">
+        <div class="feature-number">05</div>
+        <div class="feature-title">Lifetime Warranty</div>
+        <div class="feature-desc">No receipt. No proof of purchase. No questions about how it happened. If it fails, we fix it or replace it. We can afford to because the failure rate is near zero.</div>
+      </div>
+      <div class="feature reveal reveal-delay-4">
+        <div class="feature-number">06</div>
+        <div class="feature-title">45 Liters</div>
+        <div class="feature-desc">Sized for 3&ndash;5 day backcountry trips. Compresses cleanly when half-empty without losing frame geometry. Carries 35 lbs comfortably over rough terrain for days.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Specs -->
+<section class="section-light section-pad">
+  <div class="container">
+    <div class="specs-section">
+      <div>
+        <div class="section-tag tag-muted-dark reveal">Materials</div>
+        <h2 class="section-heading reveal reveal-delay-1" style="color:var(--text-dark);">
+          What <em>sailcloth nylon</em> actually means
+        </h2>
+        <div class="specs-narrative reveal reveal-delay-2">
+          <p>
+            Most packs use 500D or 1000D Cordura. It's fine. It works. It wears out.
+          </p>
+          <p>
+            <strong>1680D sailcloth nylon is built for sustained load, abrasion, and UV exposure</strong> in conditions that would shred standard pack fabric in a season. We didn't over-engineer this. We just didn't cut the corners most companies cut.
+          </p>
+          <p>
+            The result is a pack body that ages the way good gear should &mdash; slowly, and with character.
+          </p>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <table class="specs-table">
+          <tr>
+            <td>Volume</td>
+            <td>45 liters</td>
+          </tr>
+          <tr>
+            <td>Body</td>
+            <td>1680D sailcloth nylon</td>
+          </tr>
+          <tr>
+            <td>Frame</td>
+            <td>Thermoformed HDPE</td>
+          </tr>
+          <tr>
+            <td>Load range</td>
+            <td>30&ndash;40 lbs optimal</td>
+          </tr>
+          <tr>
+            <td>Zippers</td>
+            <td>YKK AquaGuard throughout</td>
+          </tr>
+          <tr>
+            <td>Layout</td>
+            <td>Single compartment, one divider</td>
+          </tr>
+          <tr>
+            <td>Trip range</td>
+            <td>3&ndash;5 days backcountry</td>
+          </tr>
+          <tr>
+            <td>Warranty</td>
+            <td>Lifetime, no receipt</td>
+          </tr>
+          <tr>
+            <td>Price</td>
+            <td>$385</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Materials deep-dive -->
+<section class="section-dark" style="padding:0;">
+  <div class="materials-layout">
+    <div class="materials-image reveal"></div>
+    <div class="materials-content">
+      <div class="section-tag tag-green reveal">Built to outlast</div>
+      <div class="reveal reveal-delay-1">
+        <p>It costs us 3x more than the industry standard.</p>
+        <p>We use it anyway.</p>
+        <p>The Basecamp is designed to be the last pack you buy. Not because we say so &mdash; because the materials make it true.</p>
+      </div>
+      <div class="materials-callout reveal reveal-delay-2">
+        <p>Single-SKU focus means all R&D and QC resources go into one product, not a catalog. Every dollar we save on marketing goes into materials.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Social Proof -->
+<section class="section-light section-pad">
+  <div class="container">
+    <div class="section-tag tag-muted-dark reveal">From the trail</div>
+    <h2 class="section-heading reveal reveal-delay-1" style="color: var(--text-dark);">
+      People who carry <em>the Basecamp</em>
+    </h2>
+    <div class="testimonials">
+      <div class="testimonial reveal reveal-delay-2">
+        <p class="testimonial-quote">I've gone through four packs in twenty years. This is the first one I think I'll still have in another twenty.</p>
+        <p class="testimonial-author">David K.</p>
+        <p class="testimonial-detail">Bozeman, MT &middot; 22 years backcountry experience</p>
+      </div>
+      <div class="testimonial reveal reveal-delay-3">
+        <p class="testimonial-quote">No wasted pockets. No dangling straps. It carries weight the way a pack should &mdash; you stop thinking about it by mile two.</p>
+        <p class="testimonial-author">Margaret T.</p>
+        <p class="testimonial-detail">Keene, NY &middot; Adirondack 46er, section hiker</p>
+      </div>
+      <div class="testimonial reveal reveal-delay-2">
+        <p class="testimonial-quote">My buddy handed me his at the trailhead and said 'just try it.' I ordered mine from the parking lot at the end of the trip.</p>
+        <p class="testimonial-author">James R.</p>
+        <p class="testimonial-detail">Bend, OR &middot; Annual Wind River Range trips since 2008</p>
+      </div>
+      <div class="testimonial reveal reveal-delay-3">
+        <p class="testimonial-quote">The zipper thing sold me. Every pack I've owned, the zippers go first. AquaGuard throughout is a decision I respect.</p>
+        <p class="testimonial-author">Catherine L.</p>
+        <p class="testimonial-detail">Concord, NH &middot; Gear tester, 15+ years</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Warranty -->
+<section class="section-dark section-pad">
+  <div class="container">
+    <div class="warranty-layout">
+      <div>
+        <div class="section-tag tag-green reveal">The warranty</div>
+        <h2 class="section-heading reveal reveal-delay-1" style="color:var(--text-light);">
+          <em>Simple.</em>
+        </h2>
+        <p class="reveal reveal-delay-2" style="font-weight:300; color:var(--text-light-secondary); margin-bottom: 8px;">
+          $385 is a lot for a pack. We know that.
+        </p>
+        <p class="reveal reveal-delay-2" style="font-weight:300; color:var(--text-light-secondary);">
+          Here's how we think about it.
+        </p>
+        <ul class="warranty-terms reveal reveal-delay-3">
+          <li>Lifetime coverage, no expiration</li>
+          <li>No receipt or proof of purchase required</li>
+          <li>No questions about how the damage happened</li>
+          <li>Zipper fails in year eight &mdash; we fix it</li>
+          <li>Strap tears in year twelve &mdash; we replace the pack</li>
+        </ul>
+      </div>
+      <div class="warranty-math reveal reveal-delay-3">
+        <div class="warranty-math-title">Cost per trip</div>
+        <div class="math-row">
+          <span class="label">$120 pack, replaced every 3 years</span>
+          <span class="value">~$8/trip</span>
+        </div>
+        <div class="math-row">
+          <span class="label">$200 pack, replaced every 5 years</span>
+          <span class="value">~$7/trip</span>
+        </div>
+        <div class="math-row highlight">
+          <span class="label">Basecamp 45L, 15 years</span>
+          <span class="value">~$5/trip</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="section-deep cta-section" id="buy">
+  <div class="container-narrow">
+    <div class="section-tag tag-green reveal">Basecamp 45L</div>
+    <h2 class="cta-heading reveal reveal-delay-1">
+      Still here when<br>you're ready.
+    </h2>
+    <p class="cta-sub reveal reveal-delay-2">
+      One pack. Sailcloth nylon. Thermoformed frame. Lifetime warranty.
+    </p>
+    <div class="cta-price reveal reveal-delay-2">$385</div>
+    <div class="cta-warranty-note reveal reveal-delay-2">Free shipping &middot; Lifetime warranty &middot; No receipt required</div>
+    <a href="#" class="cta-button reveal reveal-delay-3">Order the Basecamp</a>
+    <span class="cta-secondary reveal reveal-delay-4">Ships within 3&ndash;5 business days</span>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <span>Yowie &middot; Built to outlast &middot; One product, no catalog</span>
+  <span>
+    <a href="#">Warranty</a> &nbsp;&middot;&nbsp;
+    <a href="#">Contact</a> &nbsp;&middot;&nbsp;
+    <a href="#">Privacy</a>
+  </span>
+</footer>
+
+<script>
+// Scroll-triggered reveals
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, {
+  threshold: 0.15,
+  rootMargin: '0px 0px -40px 0px',
+});
+
+document.querySelectorAll('.reveal, .reveal-line').forEach(el => observer.observe(el));
+
+// Nav scroll state
+const nav = document.getElementById('nav');
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  if (scrollY > 80) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+  lastScroll = scrollY;
+}, { passive: true });
+</script>
+</body>
+</html>

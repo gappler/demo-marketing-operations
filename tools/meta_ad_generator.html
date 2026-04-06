@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yowie — Meta Ad Copy Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #1a1915;
+  --bg-card: #23221c;
+  --bg-card-alt: #2a2923;
+  --bg-input: #1e1d18;
+  --bg-white: #ffffff;
+  --bg-fb: #f0f2f5;
+  --border: #3a3830;
+  --border-light: #4a4838;
+  --text-primary: #d4cfc0;
+  --text-secondary: #8a8575;
+  --text-muted: #5a5648;
+  --accent-green: #7a9a6a;
+  --accent-sienna: #c2755a;
+  --accent-gold: #b8a44a;
+  --accent-slate: #6a8a9a;
+  --font-data: 'DM Mono', monospace;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-fb: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-data);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 700px 500px at 20% 30%, rgba(122,154,106,0.03), transparent),
+    radial-gradient(ellipse 500px 700px at 80% 70%, rgba(194,117,90,0.025), transparent);
+  pointer-events:none;
+  z-index:0;
+}
+
+.app {
+  position:relative;
+  z-index:1;
+  max-width:1320px;
+  margin:0 auto;
+  padding:40px 32px 80px;
+}
+
+.header {
+  margin-bottom:40px;
+  padding-bottom:28px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.header::after {
+  content:'';position:absolute;bottom:-1px;left:0;width:100px;height:1px;background:var(--accent-green);
+}
+.brand-mark { font-family:var(--font-display);font-size:38px;color:var(--text-primary);letter-spacing:-0.5px; }
+.brand-mark em { font-style:italic;color:var(--accent-green); }
+.header-sub { font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px; }
+
+.card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  padding:24px;
+  margin-bottom:20px;
+  transition:border-color 0.3s;
+}
+.card:hover { border-color:var(--border-light); }
+.card-title { font-family:var(--font-display);font-size:20px;color:var(--text-primary);margin-bottom:4px; }
+.card-desc { font-size:11px;color:var(--text-muted);margin-bottom:20px;letter-spacing:0.3px; }
+
+/* Voice Guidelines Reference */
+.voice-ref {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.voice-trait {
+  padding:6px 14px;
+  border:1px solid var(--border);
+  font-size:11px;
+  color:var(--text-secondary);
+  letter-spacing:0.5px;
+}
+.voice-trait strong { color:var(--text-primary);font-weight:500; }
+
+/* Ad Grid */
+.ad-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(380px, 1fr));
+  gap:24px;
+}
+
+/* Individual Ad Card */
+.ad-card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  overflow:hidden;
+  transition:border-color 0.3s;
+}
+.ad-card:hover { border-color:var(--border-light); }
+.ad-card.selected { border-color:var(--accent-green); }
+
+.ad-header {
+  padding:16px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--border);
+}
+.ad-variant-label {
+  font-size:10px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+}
+.ad-angle {
+  font-size:11px;
+  color:var(--accent-green);
+  letter-spacing:0.5px;
+}
+
+/* Meta Ad Preview */
+.fb-preview {
+  background:var(--bg-fb);
+  padding:16px;
+}
+.fb-card {
+  background:var(--bg-white);
+  border-radius:8px;
+  box-shadow:0 1px 2px rgba(0,0,0,0.1);
+  overflow:hidden;
+  font-family:var(--font-fb);
+}
+.fb-top {
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.fb-avatar {
+  width:40px;height:40px;border-radius:50%;
+  background:#2a3a28;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:16px;color:#d4cfc0;
+}
+.fb-meta { flex:1; }
+.fb-name { font-size:13px;font-weight:600;color:#050505; }
+.fb-sponsored { font-size:12px;color:#65676b; }
+.fb-primary-text {
+  padding:0 16px 12px;
+  font-size:14px;
+  line-height:1.5;
+  color:#050505;
+}
+.fb-image {
+  width:100%;
+  aspect-ratio:1.91/1;
+  background:linear-gradient(135deg, #2a3a28 0%, #1c2a1a 40%, #2a2820 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.fb-image span {
+  font-family:var(--font-data);
+  font-size:10px;
+  color:rgba(212,207,192,0.4);
+  letter-spacing:1px;
+}
+.fb-link-bar {
+  padding:12px 16px;
+  border-top:1px solid #dadde1;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.fb-domain { font-size:12px;color:#65676b;text-transform:uppercase; }
+.fb-headline { font-size:15px;font-weight:600;color:#050505;margin-top:2px; }
+.fb-headline-desc { font-size:14px;color:#65676b;margin-top:1px; }
+.fb-cta-btn {
+  background:#e4e6eb;
+  border:none;
+  padding:8px 16px;
+  border-radius:6px;
+  font-family:var(--font-fb);
+  font-size:13px;
+  font-weight:600;
+  color:#050505;
+  cursor:default;
+  white-space:nowrap;
+}
+.fb-reactions {
+  padding:8px 16px;
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:#65676b;
+  border-top:1px solid #dadde1;
+}
+
+/* Score Panel */
+.score-panel {
+  padding:20px;
+}
+.score-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid rgba(58,56,48,0.3);
+}
+.score-row:last-child { border-bottom:none; }
+.score-label {
+  font-size:11px;
+  color:var(--text-secondary);
+}
+.score-bar-wrap {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:1;
+  max-width:200px;
+}
+.score-bar-track {
+  flex:1;
+  height:4px;
+  background:var(--border);
+  border-radius:2px;
+  overflow:hidden;
+}
+.score-bar-fill {
+  height:100%;
+  border-radius:2px;
+  transition:width 0.6s ease;
+}
+.score-value {
+  font-size:12px;
+  font-weight:500;
+  min-width:32px;
+  text-align:right;
+}
+
+.overall-score {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 0 4px;
+  margin-top:8px;
+  border-top:1px solid var(--border);
+}
+.overall-label {
+  font-size:10px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+}
+.overall-value {
+  font-size:22px;
+  font-weight:500;
+  letter-spacing:-0.5px;
+}
+
+/* Scoring Rationale */
+.rationale {
+  margin-top:12px;
+  padding:12px 16px;
+  background:var(--bg-input);
+  border:1px solid rgba(58,56,48,0.4);
+  font-size:12px;
+  color:var(--text-secondary);
+  line-height:1.6;
+  display:none;
+}
+.rationale.visible { display:block; }
+.rationale-toggle {
+  background:none;
+  border:none;
+  color:var(--text-muted);
+  font-family:var(--font-data);
+  font-size:11px;
+  cursor:pointer;
+  padding:4px 0;
+  letter-spacing:0.5px;
+  margin-top:8px;
+}
+.rationale-toggle:hover { color:var(--text-secondary); }
+
+/* Summary bar */
+.summary-strip {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin-bottom:24px;
+}
+.summary-cell {
+  background:var(--bg-card);
+  padding:16px;
+  text-align:center;
+  cursor:pointer;
+  transition:background 0.2s;
+}
+.summary-cell:hover { background:var(--bg-card-alt); }
+.summary-cell.best { background:rgba(122,154,106,0.08); }
+.summary-rank {
+  font-size:10px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  margin-bottom:4px;
+}
+.summary-score {
+  font-size:24px;
+  font-weight:500;
+  letter-spacing:-0.5px;
+}
+.summary-angle {
+  font-size:11px;
+  color:var(--text-secondary);
+  margin-top:4px;
+}
+
+/* Methodology */
+.method-note {
+  font-size:11px;
+  color:var(--text-muted);
+  line-height:1.6;
+  padding:16px;
+  border:1px solid rgba(58,56,48,0.4);
+}
+.method-note strong { color:var(--text-secondary); }
+
+.footer {
+  margin-top:40px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+  font-size:11px;
+  color:var(--text-muted);
+  display:flex;
+  justify-content:space-between;
+}
+
+@media (max-width:900px) {
+  .ad-grid { grid-template-columns:1fr; }
+  .summary-strip { grid-template-columns:repeat(3,1fr); }
+  .voice-ref { gap:8px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="header">
+  <div class="brand-mark">Yow<em>i</em>e</div>
+  <div class="header-sub">Meta Ad Copy Generator &amp; Scorer</div>
+</header>
+
+<!-- Voice Reference -->
+<div class="card">
+  <div class="card-title">Brand Voice Guidelines</div>
+  <div class="card-desc">Each ad variant is scored against these five traits from the Yowie brand definition</div>
+  <div class="voice-ref">
+    <div class="voice-trait"><strong>Plainspoken</strong> — short sentences, no jargon, no filler</div>
+    <div class="voice-trait"><strong>Confident</strong> — states facts without hedging or overselling</div>
+    <div class="voice-trait"><strong>Restrained</strong> — never loud, never urgent, never pushy</div>
+    <div class="voice-trait"><strong>Respectful</strong> — treats the reader as competent</div>
+    <div class="voice-trait"><strong>Dry</strong> — occasional understated humor, never forced</div>
+  </div>
+</div>
+
+<!-- Ranking Strip -->
+<div class="summary-strip" id="summaryStrip"></div>
+
+<!-- Ad Cards -->
+<div class="ad-grid" id="adGrid"></div>
+
+<!-- Methodology -->
+<div class="card" style="margin-top:24px;">
+  <div class="card-title">Scoring Methodology</div>
+  <div class="card-desc">How each ad variant is evaluated</div>
+  <div class="method-note">
+    <strong>Five dimensions, each scored 1–10:</strong><br><br>
+    <strong>Plainspoken (weight: 25%)</strong> — Sentence length, jargon count, filler word count. Shorter sentences and zero jargon score higher. "1680D sailcloth nylon" is specific, not jargon — it's the actual spec.<br><br>
+    <strong>Confident (weight: 20%)</strong> — Presence of hedging language ("might," "could," "we think"), qualifying phrases, and exclamation marks. Direct factual claims score highest. No overselling.<br><br>
+    <strong>Restrained (weight: 25%)</strong> — Urgency language ("limited," "don't miss," "act now"), capitalized words, exclamation marks, and emoji usage. Any urgency tactic drops the score significantly. This is the most heavily penalized dimension for the Yowie voice.<br><br>
+    <strong>Respectful (weight: 15%)</strong> — Does the copy assume the reader knows gear? Does it explain obvious things? Does it condescend or over-explain? Higher scores treat the reader as experienced.<br><br>
+    <strong>Dry (weight: 15%)</strong> — Presence of understated humor or tonal character without forced cleverness. A "we use it anyway" is dry. A "your adventure awaits!" is not.<br><br>
+    <strong>Overall score</strong> = weighted average across all five dimensions. Scores above 8.5 indicate strong brand alignment. Scores below 7.0 indicate voice violations that would undermine audience trust.
+  </div>
+</div>
+
+<footer class="footer">
+  <span>Yowie Basecamp 45L &middot; $385 &middot; Campaign ad copy</span>
+  <span>Simulation tool &middot; scores reflect brand voice alignment</span>
+</footer>
+</div>
+
+<script>
+// ============================================================
+// AD DATA
+// ============================================================
+const ADS = [
+  {
+    id: 'v1',
+    variant: 'Variant A',
+    angle: 'Product Introduction',
+    headline: 'One pack. Sailcloth nylon. Lifetime warranty.',
+    primaryText: 'We make one product. The Basecamp 45L is built from 1680D sailcloth nylon — the same material used in commercial rigging and marine sails. Thermoformed HDPE framesheet. YKK AquaGuard zippers throughout. Single main compartment.\n\n$385. Lifetime warranty. No receipt required.',
+    linkHeadline: 'Basecamp 45L Pack',
+    linkDesc: 'Built for people who know what they\'re doing outdoors.',
+    cta: 'Learn More',
+    scores: {
+      plainspoken: 9.2,
+      confident: 9.0,
+      restrained: 9.5,
+      respectful: 8.5,
+      dry: 7.0,
+    },
+    rationale: 'The strongest all-around variant. Leads with the single-product positioning, then delivers specs without commentary. "We make one product" is both plainspoken and confident. Restrained — no urgency, no hype language. Slightly lower on dry humor — it\'s straightforward, which is appropriate for an intro but leaves room for more character. The spec list (denier count, framesheet material, zipper brand) treats the audience as people who read this language fluently.',
+  },
+  {
+    id: 'v2',
+    variant: 'Variant B',
+    angle: 'Materials Story',
+    headline: 'What sailcloth nylon actually means',
+    primaryText: 'Most packs use 500D or 1000D Cordura. It\'s fine. It works. It wears out.\n\nThe Basecamp 45L uses 1680D sailcloth nylon. It costs us 3x more than the industry standard. We use it anyway.\n\nAbrasion-resistant. Field-repairable. Built to age slowly.',
+    linkHeadline: 'Yowie Basecamp 45L',
+    linkDesc: 'The material difference.',
+    cta: 'Learn More',
+    scores: {
+      plainspoken: 9.5,
+      confident: 9.4,
+      restrained: 9.0,
+      respectful: 9.2,
+      dry: 9.0,
+    },
+    rationale: 'The highest-scoring variant. "It\'s fine. It works. It wears out." is peak Yowie voice — plainspoken, dry, devastatingly understated. "It costs us 3x more. We use it anyway." is confident without bragging. Treats the reader as someone who understands what denier count means. No urgency, no hype. The headline ("What sailcloth nylon actually means") promises substance over marketing — exactly what this audience wants. The three-word closing cadence ("Abrasion-resistant. Field-repairable. Built to age slowly.") is restrained and rhythmic.',
+  },
+  {
+    id: 'v3',
+    variant: 'Variant C',
+    angle: 'Anti-Hype Positioning',
+    headline: 'No influencers. No hype. Just the pack.',
+    primaryText: 'We don\'t sponsor athletes. We don\'t drop limited colorways. We don\'t have a lifestyle brand.\n\nWe make one backpack from sailcloth nylon with a lifetime warranty. $385.\n\nFor people who\'ve been outside long enough to know the difference.',
+    linkHeadline: 'Yowie Basecamp 45L',
+    linkDesc: 'One pack. No catalog.',
+    cta: 'Learn More',
+    scores: {
+      plainspoken: 9.0,
+      confident: 8.8,
+      restrained: 8.0,
+      respectful: 8.8,
+      dry: 9.2,
+    },
+    rationale: 'Highest dry-humor score. The "We don\'t..." repetition is effective anti-positioning that defines Yowie by what it refuses to do. Slightly lower on restrained — directly calling out competitor tactics (influencers, colorways, lifestyle branding) is more aggressive than the typical Yowie voice, which prefers to simply be different rather than point out differences. Still well within brand guidelines. "For people who\'ve been outside long enough to know the difference" is respectful — it flatters the reader\'s experience without condescending.',
+  },
+  {
+    id: 'v4',
+    variant: 'Variant D',
+    angle: 'Warranty / Price Justification',
+    headline: 'The last pack you buy.',
+    primaryText: '$385 is a lot for a pack.\n\nBut a $385 pack that lasts 15 years costs less per trip than a $120 pack you replace every three. The math is simple.\n\nLifetime warranty. No receipt. No questions.\n\nBasecamp 45L — sailcloth nylon, thermoformed frame, YKK AquaGuard zippers.',
+    linkHeadline: 'Yowie Basecamp 45L',
+    linkDesc: 'Lifetime warranty. No receipt required.',
+    cta: 'Learn More',
+    scores: {
+      plainspoken: 9.3,
+      confident: 9.2,
+      restrained: 8.5,
+      respectful: 8.0,
+      dry: 8.5,
+    },
+    rationale: 'Directly addresses the price objection — confident enough to name the price in the opening line and call it "a lot." "The math is simple" is dry and plainspoken. The cost-per-trip argument is respectful of the reader\'s intelligence — it presents the logic and lets them decide. Slightly lower on respectful because "The last pack you buy" makes a bold claim the reader might challenge. Restrained score dips slightly because the price justification format is inherently more persuasive/salesy than pure information delivery, though it stays well within brand bounds.',
+  },
+  {
+    id: 'v5',
+    variant: 'Variant E',
+    angle: 'Experience / Use Case',
+    headline: 'Five days. Thirty-five pounds. No complaints.',
+    primaryText: 'Elkhart Park to Island Lake and back. The Basecamp carries 35 lbs over granite passes without making you think about it. By day three, you forget it\'s there.\n\n1680D sailcloth nylon. Thermoformed framesheet. Single compartment. $385.',
+    linkHeadline: 'Yowie Basecamp 45L',
+    linkDesc: 'Disappears into the trip.',
+    cta: 'Learn More',
+    scores: {
+      plainspoken: 8.8,
+      confident: 8.5,
+      restrained: 9.2,
+      respectful: 9.5,
+      dry: 8.0,
+    },
+    rationale: 'Highest respectful score. Uses named trailheads (Elkhart Park, Island Lake) that the target audience may have actually visited — this treats them as peers, not prospects. "No complaints" in the headline is dry and restrained. "You forget it\'s there" is the ultimate compliment for gear in this audience\'s world. Slightly lower on confident and plainspoken because the narrative format uses longer phrases than the spec-driven variants. The closing spec list anchors the story in product reality. "Disappears into the trip" as the link description is the most brand-aligned line in the entire set.',
+  },
+];
+
+// ============================================================
+// SCORING HELPERS
+// ============================================================
+const WEIGHTS = {
+  plainspoken: 0.25,
+  confident: 0.20,
+  restrained: 0.25,
+  respectful: 0.15,
+  dry: 0.15,
+};
+
+const SCORE_LABELS = {
+  plainspoken: 'Plainspoken',
+  confident: 'Confident',
+  restrained: 'Restrained',
+  respectful: 'Respectful',
+  dry: 'Dry',
+};
+
+function overallScore(scores) {
+  let total = 0;
+  for (const [key, weight] of Object.entries(WEIGHTS)) {
+    total += scores[key] * weight;
+  }
+  return Math.round(total * 10) / 10;
+}
+
+function scoreColor(score) {
+  if (score >= 9.0) return 'var(--accent-green)';
+  if (score >= 8.0) return 'var(--accent-gold)';
+  if (score >= 7.0) return 'var(--text-secondary)';
+  return 'var(--accent-sienna)';
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderSummaryStrip() {
+  const ranked = [...ADS].sort((a, b) => overallScore(b.scores) - overallScore(a.scores));
+  const bestId = ranked[0].id;
+
+  const strip = document.getElementById('summaryStrip');
+  strip.innerHTML = ranked.map((ad, i) => {
+    const score = overallScore(ad.scores);
+    const isBest = i === 0;
+    return `<div class="summary-cell ${isBest ? 'best' : ''}" onclick="scrollToAd('${ad.id}')">
+      <div class="summary-rank">${isBest ? 'Top Pick' : '#' + (i + 1)}</div>
+      <div class="summary-score" style="color:${scoreColor(score)}">${score}</div>
+      <div class="summary-angle">${ad.angle}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAds() {
+  const grid = document.getElementById('adGrid');
+  const ranked = [...ADS].sort((a, b) => overallScore(b.scores) - overallScore(a.scores));
+  const bestId = ranked[0].id;
+
+  grid.innerHTML = ADS.map(ad => {
+    const score = overallScore(ad.scores);
+    const isBest = ad.id === bestId;
+    const primaryLines = ad.primaryText.split('\n').filter(l => l.trim()).map(l => `<span>${l}</span>`).join('<br><br>');
+
+    let scoresHTML = '';
+    for (const [key, label] of Object.entries(SCORE_LABELS)) {
+      const val = ad.scores[key];
+      const pct = (val / 10) * 100;
+      scoresHTML += `<div class="score-row">
+        <span class="score-label">${label}</span>
+        <div class="score-bar-wrap">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" style="width:${pct}%;background:${scoreColor(val)}"></div>
+          </div>
+          <span class="score-value" style="color:${scoreColor(val)}">${val}</span>
+        </div>
+      </div>`;
+    }
+
+    return `<div class="ad-card ${isBest ? 'selected' : ''}" id="ad-${ad.id}">
+      <div class="ad-header">
+        <span class="ad-variant-label">${ad.variant}${isBest ? ' — TOP PICK' : ''}</span>
+        <span class="ad-angle">${ad.angle}</span>
+      </div>
+
+      <!-- Meta Ad Preview -->
+      <div class="fb-preview">
+        <div class="fb-card">
+          <div class="fb-top">
+            <div class="fb-avatar">Y</div>
+            <div class="fb-meta">
+              <div class="fb-name">Yowie</div>
+              <div class="fb-sponsored">Sponsored</div>
+            </div>
+          </div>
+          <div class="fb-primary-text">${primaryLines}</div>
+          <div class="fb-image"><span>[ campaign creative ]</span></div>
+          <div class="fb-link-bar">
+            <div>
+              <div class="fb-domain">yowie.example</div>
+              <div class="fb-headline">${ad.linkHeadline}</div>
+              <div class="fb-headline-desc">${ad.linkDesc}</div>
+            </div>
+            <button class="fb-cta-btn">${ad.cta}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scores -->
+      <div class="score-panel">
+        ${scoresHTML}
+        <div class="overall-score">
+          <span class="overall-label">Overall Brand Alignment</span>
+          <span class="overall-value" style="color:${scoreColor(score)}">${score}</span>
+        </div>
+        <button class="rationale-toggle" onclick="toggleRationale('${ad.id}')">Show scoring rationale</button>
+        <div class="rationale" id="rationale-${ad.id}">${ad.rationale}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRationale(id) {
+  const el = document.getElementById('rationale-' + id);
+  el.classList.toggle('visible');
+  const btn = el.previousElementSibling;
+  btn.textContent = el.classList.contains('visible') ? 'Hide scoring rationale' : 'Show scoring rationale';
+}
+
+function scrollToAd(id) {
+  document.getElementById('ad-' + id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderSummaryStrip();
+renderAds();
+</script>
+</body>
+</html>

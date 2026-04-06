@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yowie — Marketing Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #1a1915;
+    --bg-card: #23221c;
+    --bg-card-hover: #2a2923;
+    --border: #3a3830;
+    --border-light: #4a4838;
+    --text-primary: #d4cfc0;
+    --text-secondary: #8a8575;
+    --text-muted: #5a5648;
+    --accent-green: #7a9a6a;
+    --accent-green-dim: rgba(122,154,106,0.15);
+    --accent-sienna: #c2755a;
+    --accent-sienna-dim: rgba(194,117,90,0.15);
+    --accent-gold: #b8a44a;
+    --accent-gold-dim: rgba(184,164,74,0.15);
+    --accent-slate: #6a8a9a;
+    --accent-slate-dim: rgba(106,138,154,0.15);
+    --accent-clay: #9a7a6a;
+    --accent-clay-dim: rgba(154,122,106,0.15);
+    --font-data: 'DM Mono', monospace;
+    --font-display: 'Instrument Serif', Georgia, serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-data);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Topo-line background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        transparent 0deg,
+        transparent 89deg,
+        rgba(58,56,48,0.03) 89deg,
+        rgba(58,56,48,0.03) 91deg,
+        transparent 91deg
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 800px 600px at 20% 30%, rgba(122,154,106,0.04), transparent),
+      radial-gradient(ellipse 600px 800px at 80% 70%, rgba(194,117,90,0.03), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .dashboard {
+    position: relative;
+    z-index: 1;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 120px;
+    height: 1px;
+    background: var(--accent-green);
+  }
+
+  .brand-mark {
+    font-family: var(--font-display);
+    font-size: 42px;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .brand-mark em {
+    font-style: italic;
+    color: var(--accent-green);
+  }
+
+  .header-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  .period-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+  }
+
+  /* KPI Strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+  }
+
+  .kpi {
+    background: var(--bg-card);
+    padding: 20px 18px;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .kpi:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .kpi-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 300;
+  }
+
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  .kpi-sub .up { color: var(--accent-green); }
+  .kpi-sub .down { color: var(--accent-sienna); }
+
+  /* Chart Grid */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+
+  .chart-card:hover {
+    border-color: var(--border-light);
+  }
+
+  .chart-card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .chart-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .chart-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 260px;
+  }
+
+  .chart-container.tall {
+    height: 300px;
+  }
+
+  /* Data Table */
+  .data-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 400;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(58,56,48,0.4);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .data-table tr:hover td {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.01);
+  }
+
+  .data-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .data-table .highlight {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* Tab nav */
+  .tab-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-data);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn:hover {
+    color: var(--text-secondary);
+  }
+
+  .tab-btn.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-green);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Seasonal indicator */
+  .season-bar {
+    display: flex;
+    gap: 2px;
+    margin-top: 16px;
+  }
+
+  .season-block {
+    flex: 1;
+    height: 4px;
+    border-radius: 1px;
+    position: relative;
+  }
+
+  .season-block .tip {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  .season-block:hover .tip { display: block; }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Responsive */
+  @media (max-width: 1000px) {
+    .chart-grid { grid-template-columns: 1fr; }
+    .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .dashboard { padding: 20px 16px 60px; }
+    .brand-mark { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand-mark">Yow<em>i</em>e</div>
+    <div class="header-subtitle">Marketing Performance Dashboard</div>
+    <div class="period-badge">Apr 2025 — Mar 2026 &middot; 12 months</div>
+  </header>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip" id="kpiStrip"></div>
+
+  <!-- Seasonal Indicator -->
+  <div class="chart-card full-width" style="margin-bottom: 24px; padding: 16px 24px;">
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+      <span class="chart-desc" style="margin: 0;">Seasonal Revenue Index</span>
+      <span style="font-size: 10px; color: var(--text-muted);">Hover for details</span>
+    </div>
+    <div class="season-bar" id="seasonBar"></div>
+  </div>
+
+  <!-- Row 1: Revenue + CAC -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Monthly Revenue</div>
+      <div class="chart-desc">Total revenue from all channels, units sold overlay</div>
+      <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Customer Acquisition Cost</div>
+      <div class="chart-desc">Meta spend / Meta-attributed conversions</div>
+      <div class="chart-container"><canvas id="cacChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 2: Channel Spend vs Return + Web Traffic -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Channel Spend vs. Return</div>
+      <div class="chart-desc">Meta ad spend against attributed revenue, with ROAS</div>
+      <div class="chart-container"><canvas id="channelChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Web Traffic by Source</div>
+      <div class="chart-desc">Monthly sessions by acquisition channel</div>
+      <div class="chart-container"><canvas id="trafficChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 3: Email Performance + Orders by Region -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Email Performance</div>
+      <div class="chart-desc">Open rate, click-through rate, and list growth</div>
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="emailRates">Rates</button>
+        <button class="tab-btn" data-tab="emailList">List Growth</button>
+      </div>
+      <div class="tab-panel active" id="emailRates">
+        <div class="chart-container"><canvas id="emailRatesChart"></canvas></div>
+      </div>
+      <div class="tab-panel" id="emailList">
+        <div class="chart-container"><canvas id="emailListChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Orders by Region</div>
+      <div class="chart-desc">Customer distribution across US regions</div>
+      <div class="chart-container"><canvas id="regionChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Monthly Detail Table -->
+  <div class="chart-card full-width" style="margin-top: 24px;">
+    <div class="chart-title">Monthly Detail</div>
+    <div class="chart-desc">All key metrics at a glance</div>
+    <div class="data-table-wrapper">
+      <table class="data-table" id="detailTable"></table>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>Yowie Basecamp 45L &middot; $385</span>
+    <span>Simulation data &middot; generated 2026-04-05</span>
+  </footer>
+</div>
+
+<script>
+// ============================================================
+// DATA — embedded from generated CSVs
+// ============================================================
+const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+const MONTH_KEYS = ['2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'];
+
+const summary = [
+  {month:'2025-04',sessions:6617,emailsSent:5374,emailRev:0,metaSpend:1991,metaRev:10780,metaRoas:5.41,socialEng:458,orders:49,units:51,revenue:19173,aov:391.29},
+  {month:'2025-05',sessions:8121,emailsSent:5529,emailRev:770,metaSpend:2320,metaRev:12320,metaRoas:5.31,socialEng:521,orders:57,units:63,revenue:23543,aov:413.03},
+  {month:'2025-06',sessions:9372,emailsSent:8477,emailRev:1540,metaSpend:3209,metaRev:19250,metaRoas:6.00,socialEng:653,orders:67,units:72,revenue:27027,aov:403.39},
+  {month:'2025-07',sessions:11851,emailsSent:8903,emailRev:1925,metaSpend:3563,metaRev:26180,metaRoas:7.35,socialEng:806,orders:83,units:88,revenue:33611,aov:404.95},
+  {month:'2025-08',sessions:10334,emailsSent:9378,emailRev:2310,metaSpend:3589,metaRev:21560,metaRoas:6.01,socialEng:836,orders:72,units:80,revenue:30608,aov:425.10},
+  {month:'2025-09',sessions:9892,emailsSent:6448,emailRev:1540,metaSpend:3066,metaRev:19250,metaRoas:6.28,socialEng:820,orders:67,units:75,revenue:28259,aov:421.78},
+  {month:'2025-10',sessions:8349,emailsSent:6637,emailRev:770,metaSpend:2564,metaRev:13090,metaRoas:5.11,socialEng:691,orders:61,units:67,revenue:25025,aov:410.25},
+  {month:'2025-11',sessions:5996,emailsSent:6948,emailRev:385,metaSpend:1767,metaRev:10395,metaRoas:5.88,socialEng:509,orders:44,units:46,revenue:17325,aov:393.75},
+  {month:'2025-12',sessions:4576,emailsSent:7102,emailRev:385,metaSpend:1478,metaRev:5775,metaRoas:3.91,socialEng:308,orders:31,units:32,revenue:12070,aov:389.35},
+  {month:'2026-01',sessions:4451,emailsSent:7303,emailRev:0,metaSpend:1464,metaRev:5775,metaRoas:3.94,socialEng:304,orders:31,units:31,revenue:11627,aov:375.06},
+  {month:'2026-02',sessions:5223,emailsSent:7392,emailRev:0,metaSpend:1594,metaRev:6545,metaRoas:4.11,socialEng:337,orders:34,units:35,revenue:13186,aov:387.83},
+  {month:'2026-03',sessions:7022,emailsSent:7426,emailRev:770,metaSpend:2413,metaRev:13090,metaRoas:5.42,socialEng:701,orders:47,units:50,revenue:19077,aov:405.89},
+];
+
+const metaAds = [
+  {month:'2025-04',spend:1991,impressions:96603,clicks:966,ctr:0.01,cpc:2.06,cpm:20.61,atc:78,conv:28,rev:10780,roas:5.41},
+  {month:'2025-05',spend:2320,impressions:108716,clicks:1087,ctr:0.01,cpc:2.13,cpm:21.34,atc:96,conv:32,rev:12320,roas:5.31},
+  {month:'2025-06',spend:3209,impressions:126288,clicks:1262,ctr:0.01,cpc:2.54,cpm:25.41,atc:154,conv:50,rev:19250,roas:6.00},
+  {month:'2025-07',spend:3563,impressions:137780,clicks:1377,ctr:0.01,cpc:2.59,cpm:25.86,atc:192,conv:68,rev:26180,roas:7.35},
+  {month:'2025-08',spend:3589,impressions:140579,clicks:1405,ctr:0.01,cpc:2.55,cpm:25.53,atc:146,conv:56,rev:21560,roas:6.01},
+  {month:'2025-09',spend:3066,impressions:125913,clicks:1259,ctr:0.01,cpc:2.44,cpm:24.35,atc:132,conv:50,rev:19250,roas:6.28},
+  {month:'2025-10',spend:2564,impressions:115443,clicks:1154,ctr:0.01,cpc:2.22,cpm:22.21,atc:96,conv:34,rev:13090,roas:5.11},
+  {month:'2025-11',spend:1767,impressions:91270,clicks:912,ctr:0.01,cpc:1.94,cpm:19.36,atc:67,conv:27,rev:10395,roas:5.88},
+  {month:'2025-12',spend:1478,impressions:78201,clicks:782,ctr:0.01,cpc:1.89,cpm:18.90,atc:41,conv:15,rev:5775,roas:3.91},
+  {month:'2026-01',spend:1464,impressions:78752,clicks:787,ctr:0.01,cpc:1.86,cpm:18.59,atc:45,conv:15,rev:5775,roas:3.94},
+  {month:'2026-02',spend:1594,impressions:88261,clicks:882,ctr:0.01,cpc:1.81,cpm:18.06,atc:51,conv:17,rev:6545,roas:4.11},
+  {month:'2026-03',spend:2413,impressions:114959,clicks:1149,ctr:0.01,cpc:2.10,cpm:20.99,atc:98,conv:34,rev:13090,roas:5.42},
+];
+
+const webTraffic = {
+  organic_search:[2236,2793,3271,4227,3567,3204,3102,2055,1527,1511,1849,2462],
+  direct:[1564,1684,2052,2444,2177,2277,1695,1343,1066,953,1200,1620],
+  paid_social:[1598,2148,2306,3034,2634,2602,2069,1502,1146,1181,1222,1710],
+  email:[658,803,984,1221,1072,993,780,574,476,462,525,660],
+  referral:[561,693,759,925,884,816,703,522,361,344,427,570],
+};
+
+const emailCampaigns = [
+  {month:'2025-04',id:'YW-EM-001',type:'promotion',list:2800,sent:2673,opens:935,openRate:0.35,clicks:37,ctr:0.04,conv:0,rev:0,unsubs:5},
+  {month:'2025-04',id:'YW-EM-002',type:'story',list:2795,sent:2701,opens:972,openRate:0.36,clicks:48,ctr:0.05,conv:0,rev:0,unsubs:4},
+  {month:'2025-05',id:'YW-EM-003',type:'seasonal',list:2880,sent:2748,opens:1044,openRate:0.38,clicks:52,ctr:0.05,conv:1,rev:385,unsubs:2},
+  {month:'2025-05',id:'YW-EM-004',type:'seasonal',list:2878,sent:2781,opens:917,openRate:0.33,clicks:45,ctr:0.05,conv:1,rev:385,unsubs:4},
+  {month:'2025-06',id:'YW-EM-005',type:'seasonal',list:3006,sent:2867,opens:1089,openRate:0.38,clicks:43,ctr:0.04,conv:1,rev:385,unsubs:6},
+  {month:'2025-06',id:'YW-EM-006',type:'promotion',list:3000,sent:2822,opens:1100,openRate:0.39,clicks:44,ctr:0.04,conv:1,rev:385,unsubs:6},
+  {month:'2025-06',id:'YW-EM-007',type:'product_feature',list:2994,sent:2788,opens:1059,openRate:0.38,clicks:52,ctr:0.05,conv:2,rev:770,unsubs:4},
+  {month:'2025-07',id:'YW-EM-008',type:'product_feature',list:3124,sent:2921,opens:1168,openRate:0.40,clicks:58,ctr:0.05,conv:1,rev:385,unsubs:3},
+  {month:'2025-07',id:'YW-EM-009',type:'seasonal',list:3121,sent:2974,opens:1040,openRate:0.35,clicks:41,ctr:0.04,conv:2,rev:770,unsubs:4},
+  {month:'2025-07',id:'YW-EM-010',type:'product_feature',list:3117,sent:3008,opens:1052,openRate:0.35,clicks:42,ctr:0.04,conv:2,rev:770,unsubs:3},
+  {month:'2025-08',id:'YW-EM-011',type:'educational',list:3278,sent:3145,opens:1226,openRate:0.39,clicks:49,ctr:0.04,conv:2,rev:770,unsubs:4},
+  {month:'2025-08',id:'YW-EM-012',type:'story',list:3274,sent:3157,opens:1073,openRate:0.34,clicks:53,ctr:0.05,conv:2,rev:770,unsubs:5},
+  {month:'2025-08',id:'YW-EM-013',type:'story',list:3269,sent:3076,opens:1199,openRate:0.39,clicks:47,ctr:0.04,conv:2,rev:770,unsubs:8},
+  {month:'2025-09',id:'YW-EM-014',type:'promotion',list:3418,sent:3227,opens:1226,openRate:0.38,clicks:61,ctr:0.05,conv:2,rev:770,unsubs:4},
+  {month:'2025-09',id:'YW-EM-015',type:'promotion',list:3414,sent:3221,opens:1223,openRate:0.38,clicks:61,ctr:0.05,conv:2,rev:770,unsubs:5},
+  {month:'2025-10',id:'YW-EM-016',type:'educational',list:3541,sent:3340,opens:1102,openRate:0.33,clicks:55,ctr:0.05,conv:1,rev:385,unsubs:5},
+  {month:'2025-10',id:'YW-EM-017',type:'seasonal',list:3536,sent:3297,opens:1186,openRate:0.36,clicks:47,ctr:0.04,conv:1,rev:385,unsubs:8},
+  {month:'2025-11',id:'YW-EM-018',type:'product_feature',list:3656,sent:3457,opens:1175,openRate:0.34,clicks:47,ctr:0.04,conv:0,rev:0,unsubs:8},
+  {month:'2025-11',id:'YW-EM-019',type:'educational',list:3648,sent:3491,opens:1256,openRate:0.36,clicks:62,ctr:0.05,conv:1,rev:385,unsubs:4},
+  {month:'2025-12',id:'YW-EM-020',type:'seasonal',list:3747,sent:3577,opens:1216,openRate:0.34,clicks:48,ctr:0.04,conv:0,rev:0,unsubs:10},
+  {month:'2025-12',id:'YW-EM-021',type:'promotion',list:3737,sent:3525,opens:1198,openRate:0.34,clicks:59,ctr:0.05,conv:1,rev:385,unsubs:4},
+  {month:'2026-01',id:'YW-EM-022',type:'story',list:3815,sent:3641,opens:1165,openRate:0.32,clicks:58,ctr:0.05,conv:0,rev:0,unsubs:3},
+  {month:'2026-01',id:'YW-EM-023',type:'promotion',list:3812,sent:3662,opens:1208,openRate:0.33,clicks:48,ctr:0.04,conv:0,rev:0,unsubs:6},
+  {month:'2026-02',id:'YW-EM-024',type:'story',list:3870,sent:3699,opens:1183,openRate:0.32,clicks:59,ctr:0.05,conv:0,rev:0,unsubs:8},
+  {month:'2026-02',id:'YW-EM-025',type:'story',list:3862,sent:3693,opens:1181,openRate:0.32,clicks:47,ctr:0.04,conv:0,rev:0,unsubs:3},
+  {month:'2026-03',id:'YW-EM-026',type:'product_feature',list:3937,sent:3733,opens:1381,openRate:0.37,clicks:69,ctr:0.05,conv:1,rev:385,unsubs:9},
+  {month:'2026-03',id:'YW-EM-027',type:'promotion',list:3928,sent:3693,opens:1292,openRate:0.35,clicks:51,ctr:0.04,conv:1,rev:385,unsubs:9},
+];
+
+// Orders aggregated by region
+const ordersByRegion = {
+  mountain_west: 196,
+  northeast: 178,
+  pacific_northwest: 156,
+  southeast: 68,
+  midwest: 45,
+};
+
+// ============================================================
+// CHART DEFAULTS
+// ============================================================
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#8a8575';
+Chart.defaults.borderColor = 'rgba(58,56,48,0.5)';
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.boxHeight = 10;
+Chart.defaults.plugins.legend.labels.padding = 14;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1a1915';
+Chart.defaults.plugins.tooltip.borderColor = '#3a3830';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleFont = {family: "'DM Mono', monospace", size: 11};
+Chart.defaults.plugins.tooltip.bodyFont = {family: "'DM Mono', monospace", size: 11};
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 0;
+Chart.defaults.elements.point.radius = 3;
+Chart.defaults.elements.point.hoverRadius = 5;
+Chart.defaults.elements.point.borderWidth = 2;
+Chart.defaults.elements.line.borderWidth = 2;
+Chart.defaults.elements.bar.borderRadius = 1;
+
+const gridOpts = {
+  color: 'rgba(58,56,48,0.4)',
+  drawBorder: false,
+  tickLength: 0,
+};
+
+const xAxisBase = {
+  grid: { display: false },
+  ticks: { padding: 8 },
+};
+
+// ============================================================
+// KPI STRIP
+// ============================================================
+function renderKPIs() {
+  const totalRev = summary.reduce((s,m) => s + m.revenue, 0);
+  const totalUnits = summary.reduce((s,m) => s + m.units, 0);
+  const totalOrders = summary.reduce((s,m) => s + m.orders, 0);
+  const totalMetaSpend = metaAds.reduce((s,m) => s + m.spend, 0);
+  const totalMetaConv = metaAds.reduce((s,m) => s + m.conv, 0);
+  const avgRoas = (metaAds.reduce((s,m) => s + m.rev, 0) / totalMetaSpend).toFixed(1);
+  const avgAov = (totalRev / totalOrders).toFixed(0);
+  const avgCac = (totalMetaSpend / totalMetaConv).toFixed(0);
+
+  // H2 vs H1 comparison
+  const h1Rev = summary.slice(0,6).reduce((s,m) => s+m.revenue, 0);
+  const h2Rev = summary.slice(6).reduce((s,m) => s+m.revenue, 0);
+  const revDelta = ((h2Rev - h1Rev) / h1Rev * 100).toFixed(0);
+
+  const kpis = [
+    {label:'Annual Revenue', value:'$' + (totalRev/1000).toFixed(0) + 'K', sub:`H2 vs H1: <span class="${revDelta >= 0 ? 'up' : 'down'}">${revDelta >= 0 ? '+' : ''}${revDelta}%</span>`},
+    {label:'Units Sold', value: totalUnits.toLocaleString(), sub: `${totalOrders} orders`},
+    {label:'Avg Order Value', value: '$' + avgAov, sub: 'per transaction'},
+    {label:'Meta ROAS', value: avgRoas + 'x', sub: '$' + (totalMetaSpend/1000).toFixed(1) + 'K total spend'},
+    {label:'Avg CAC', value: '$' + avgCac, sub: 'Meta-attributed'},
+    {label:'Email List', value: '3,928', sub: 'from 2,800 (+40%)'},
+  ];
+
+  const strip = document.getElementById('kpiStrip');
+  strip.innerHTML = kpis.map(k => `
+    <div class="kpi">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// SEASONAL BAR
+// ============================================================
+function renderSeasonBar() {
+  const bar = document.getElementById('seasonBar');
+  const maxRev = Math.max(...summary.map(m => m.revenue));
+  bar.innerHTML = summary.map((m, i) => {
+    const intensity = m.revenue / maxRev;
+    const r = Math.round(122 + (194-122) * intensity);
+    const g = Math.round(154 + (117-154) * intensity);
+    const b = Math.round(106 + (90-106) * intensity);
+    return `<div class="season-block" style="background: rgba(${r},${g},${b},${0.3 + intensity * 0.7})">
+      <div class="tip">${MONTHS[i]}: $${(m.revenue/1000).toFixed(1)}K &middot; ${m.units} units</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+function initRevenueChart() {
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        {
+          label: 'Revenue',
+          data: summary.map(m => m.revenue),
+          backgroundColor: 'rgba(122,154,106,0.6)',
+          hoverBackgroundColor: 'rgba(122,154,106,0.8)',
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Units',
+          data: summary.map(m => m.units),
+          type: 'line',
+          borderColor: 'rgba(184,164,74,0.8)',
+          backgroundColor: 'rgba(184,164,74,0.1)',
+          pointBackgroundColor: '#1a1915',
+          pointBorderColor: 'rgba(184,164,74,0.8)',
+          yAxisID: 'y1',
+          order: 1,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: xAxisBase,
+        y: {
+          grid: gridOpts,
+          ticks: {
+            padding: 8,
+            callback: v => '$' + (v/1000).toFixed(0) + 'K',
+          },
+        },
+        y1: {
+          position: 'right',
+          grid: { display: false },
+          ticks: { padding: 8 },
+        },
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.label === 'Revenue')
+                return 'Revenue: $' + ctx.raw.toLocaleString();
+              return 'Units: ' + ctx.raw;
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function initCACChart() {
+  const cacData = metaAds.map(m => m.conv > 0 ? +(m.spend / m.conv).toFixed(2) : null);
+  new Chart(document.getElementById('cacChart'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        {
+          label: 'CAC',
+          data: cacData,
+          borderColor: 'rgba(194,117,90,0.8)',
+          backgroundColor: 'rgba(194,117,90,0.08)',
+          fill: true,
+          pointBackgroundColor: '#1a1915',
+          pointBorderColor: 'rgba(194,117,90,0.8)',
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: xAxisBase,
+        y: {
+          grid: gridOpts,
+          ticks: {
+            padding: 8,
+            callback: v => '$' + v,
+          },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => 'CAC: $' + ctx.raw.toFixed(2),
+          },
+        },
+      },
+    },
+  });
+}
+
+function initChannelChart() {
+  new Chart(document.getElementById('channelChart'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        {
+          label: 'Meta Spend',
+          data: metaAds.map(m => m.spend),
+          backgroundColor: 'rgba(194,117,90,0.5)',
+          hoverBackgroundColor: 'rgba(194,117,90,0.7)',
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Meta Revenue',
+          data: metaAds.map(m => m.rev),
+          type: 'line',
+          borderColor: 'rgba(122,154,106,0.8)',
+          pointBackgroundColor: '#1a1915',
+          pointBorderColor: 'rgba(122,154,106,0.8)',
+          yAxisID: 'y',
+          order: 1,
+          tension: 0.3,
+        },
+        {
+          label: 'ROAS',
+          data: metaAds.map(m => m.roas),
+          type: 'line',
+          borderColor: 'rgba(184,164,74,0.6)',
+          borderDash: [4, 3],
+          pointRadius: 2,
+          pointBackgroundColor: '#1a1915',
+          pointBorderColor: 'rgba(184,164,74,0.6)',
+          yAxisID: 'y1',
+          order: 0,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: xAxisBase,
+        y: {
+          grid: gridOpts,
+          ticks: {
+            padding: 8,
+            callback: v => '$' + (v/1000).toFixed(0) + 'K',
+          },
+        },
+        y1: {
+          position: 'right',
+          grid: { display: false },
+          ticks: {
+            padding: 8,
+            callback: v => v + 'x',
+          },
+          min: 0,
+          max: 10,
+        },
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.label === 'ROAS') return 'ROAS: ' + ctx.raw + 'x';
+              return ctx.dataset.label + ': $' + ctx.raw.toLocaleString();
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function initTrafficChart() {
+  const sources = [
+    {key:'organic_search', label:'Organic', color:'rgba(122,154,106,0.7)'},
+    {key:'direct', label:'Direct', color:'rgba(184,164,74,0.6)'},
+    {key:'paid_social', label:'Paid Social', color:'rgba(194,117,90,0.6)'},
+    {key:'email', label:'Email', color:'rgba(106,138,154,0.6)'},
+    {key:'referral', label:'Referral', color:'rgba(154,122,106,0.6)'},
+  ];
+  new Chart(document.getElementById('trafficChart'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: sources.map(s => ({
+        label: s.label,
+        data: webTraffic[s.key],
+        borderColor: s.color,
+        backgroundColor: s.color.replace(/[\d.]+\)$/, '0.05)'),
+        fill: true,
+        pointBackgroundColor: '#1a1915',
+        pointBorderColor: s.color,
+        tension: 0.3,
+        pointRadius: 2,
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: xAxisBase,
+        y: {
+          stacked: true,
+          grid: gridOpts,
+          ticks: {
+            padding: 8,
+            callback: v => (v/1000).toFixed(0) + 'K',
+          },
+        },
+      },
+    },
+  });
+}
+
+function initEmailCharts() {
+  // Aggregate email data by month
+  const emailByMonth = MONTH_KEYS.map(mk => {
+    const camps = emailCampaigns.filter(c => c.month === mk);
+    const avgOpen = camps.reduce((s,c) => s + c.openRate, 0) / camps.length;
+    const avgCtr = camps.reduce((s,c) => s + c.ctr, 0) / camps.length;
+    const maxList = Math.max(...camps.map(c => c.list));
+    return { avgOpen, avgCtr, maxList };
+  });
+
+  // Rates chart
+  new Chart(document.getElementById('emailRatesChart'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        {
+          label: 'Open Rate',
+          data: emailByMonth.map(m => +(m.avgOpen * 100).toFixed(1)),
+          borderColor: 'rgba(122,154,106,0.8)',
+          pointBackgroundColor: '#1a1915',
+          pointBorderColor: 'rgba(122,154,106,0.8)',
+          tension: 0.3,
+        },
+        {
+          label: 'CTR',
+          data: emailByMonth.map(m => +(m.avgCtr * 100).toFixed(1)),
+          borderColor: 'rgba(184,164,74,0.8)',
+          pointBackgroundColor: '#1a1915',
+          pointBorderColor: 'rgba(184,164,74,0.8)',
+          tension: 0.3,
+          yAxisID: 'y1',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: xAxisBase,
+        y: {
+          grid: gridOpts,
+          ticks: { padding: 8, callback: v => v + '%' },
+          min: 25,
+          max: 45,
+        },
+        y1: {
+          position: 'right',
+          grid: { display: false },
+          ticks: { padding: 8, callback: v => v + '%' },
+          min: 3,
+          max: 6,
+        },
+      },
+      plugins: {
+        tooltip: {
+          callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' },
+        },
+      },
+    },
+  });
+
+  // List growth chart
+  new Chart(document.getElementById('emailListChart'), {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        label: 'List Size',
+        data: emailByMonth.map(m => m.maxList),
+        backgroundColor: 'rgba(106,138,154,0.5)',
+        hoverBackgroundColor: 'rgba(106,138,154,0.7)',
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: xAxisBase,
+        y: {
+          grid: gridOpts,
+          ticks: { padding: 8 },
+          min: 2500,
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => 'List: ' + ctx.raw.toLocaleString() },
+        },
+      },
+    },
+  });
+}
+
+function initRegionChart() {
+  const labels = Object.keys(ordersByRegion).map(k => k.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '));
+  const values = Object.values(ordersByRegion);
+  const colors = [
+    'rgba(122,154,106,0.7)',
+    'rgba(194,117,90,0.7)',
+    'rgba(184,164,74,0.7)',
+    'rgba(106,138,154,0.7)',
+    'rgba(154,122,106,0.7)',
+  ];
+
+  new Chart(document.getElementById('regionChart'), {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        hoverBackgroundColor: colors.map(c => c.replace('0.7', '0.9')),
+        borderColor: '#23221c',
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { padding: 12 },
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+              const pct = ((ctx.raw / total) * 100).toFixed(1);
+              return ctx.label + ': ' + ctx.raw + ' orders (' + pct + '%)';
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+// ============================================================
+// DETAIL TABLE
+// ============================================================
+function renderTable() {
+  const table = document.getElementById('detailTable');
+  const cols = ['Month','Sessions','Orders','Units','Revenue','AOV','Meta Spend','Meta ROAS','Email Sent','Soc. Eng.'];
+
+  let html = '<thead><tr>' + cols.map(c => `<th class="${c !== 'Month' ? 'num' : ''}">${c}</th>`).join('') + '</tr></thead><tbody>';
+
+  summary.forEach((m, i) => {
+    const isHigh = m.revenue === Math.max(...summary.map(s => s.revenue));
+    html += `<tr>
+      <td>${MONTHS[i]} ${MONTH_KEYS[i].slice(0,4)}</td>
+      <td class="num">${m.sessions.toLocaleString()}</td>
+      <td class="num">${m.orders}</td>
+      <td class="num">${m.units}</td>
+      <td class="num ${isHigh ? 'highlight' : ''}">$${m.revenue.toLocaleString()}</td>
+      <td class="num">$${m.aov.toFixed(0)}</td>
+      <td class="num">$${m.metaSpend.toLocaleString()}</td>
+      <td class="num">${m.metaRoas}x</td>
+      <td class="num">${m.emailsSent.toLocaleString()}</td>
+      <td class="num">${m.socialEng.toLocaleString()}</td>
+    </tr>`;
+  });
+
+  // Totals row
+  const t = {
+    sessions: summary.reduce((s,m) => s+m.sessions, 0),
+    orders: summary.reduce((s,m) => s+m.orders, 0),
+    units: summary.reduce((s,m) => s+m.units, 0),
+    revenue: summary.reduce((s,m) => s+m.revenue, 0),
+    metaSpend: summary.reduce((s,m) => s+m.metaSpend, 0),
+    emailsSent: summary.reduce((s,m) => s+m.emailsSent, 0),
+    socialEng: summary.reduce((s,m) => s+m.socialEng, 0),
+  };
+  html += `<tr style="border-top: 2px solid var(--border-light);">
+    <td style="color:var(--text-primary);font-weight:500;">Total</td>
+    <td class="num highlight">${t.sessions.toLocaleString()}</td>
+    <td class="num highlight">${t.orders}</td>
+    <td class="num highlight">${t.units}</td>
+    <td class="num highlight">$${t.revenue.toLocaleString()}</td>
+    <td class="num highlight">$${(t.revenue/t.orders).toFixed(0)}</td>
+    <td class="num highlight">$${t.metaSpend.toLocaleString()}</td>
+    <td class="num highlight">${(metaAds.reduce((s,m) => s+m.rev,0) / t.metaSpend).toFixed(1)}x</td>
+    <td class="num highlight">${t.emailsSent.toLocaleString()}</td>
+    <td class="num highlight">${t.socialEng.toLocaleString()}</td>
+  </tr>`;
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const card = btn.closest('.chart-card');
+    card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    card.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderKPIs();
+renderSeasonBar();
+initRevenueChart();
+initCACChart();
+initChannelChart();
+initTrafficChart();
+initEmailCharts();
+initRegionChart();
+renderTable();
+</script>
+</body>
+</html>

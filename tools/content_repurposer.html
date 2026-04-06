@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yowie — Content Repurposing Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1915;--bg-card:#23221c;--bg-alt:#2a2923;--bg-in:#1e1d18;
+  --bdr:#3a3830;--bdr-lt:#4a4838;
+  --t1:#d4cfc0;--t2:#8a8575;--t3:#5a5648;
+  --grn:#7a9a6a;--grn-b:#9aba8a;--grn-d:rgba(122,154,106,.12);
+  --sie:#c2755a;--gld:#b8a44a;--slt:#6a8a9a;--cly:#9a7a6a;
+  --fd:'DM Mono',monospace;--fh:'Instrument Serif',Georgia,serif;--fb:'Source Serif 4',Georgia,serif;
+  /* Platform colors */
+  --li:#0a66c2;--ig:#e1306c;--tw:#1da1f2;--meta-c:#1877f2;--em:#7a9a6a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:var(--fd);font-size:13px;line-height:1.5}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 20% 30%,rgba(122,154,106,.03),transparent),radial-gradient(ellipse 500px 700px at 80% 70%,rgba(194,117,90,.025),transparent);pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:40px 32px 80px}
+
+.header{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--bdr);position:relative}
+.header::after{content:'';position:absolute;bottom:-1px;left:0;width:100px;height:1px;background:var(--grn)}
+.bm{font-family:var(--fh);font-size:38px;color:var(--t1);letter-spacing:-.5px}
+.bm em{font-style:italic;color:var(--grn)}
+.hs{font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+.card{background:var(--bg-card);border:1px solid var(--bdr);padding:24px;margin-bottom:20px;transition:border-color .3s}
+.card:hover{border-color:var(--bdr-lt)}
+.ct{font-family:var(--fh);font-size:20px;color:var(--t1);margin-bottom:4px}
+.cd{font-size:11px;color:var(--t3);margin-bottom:20px;letter-spacing:.3px}
+
+/* Source post */
+.source-content{
+  font-family:var(--fb);font-size:16px;line-height:1.8;color:var(--t2);
+  max-height:320px;overflow-y:auto;padding-right:16px;
+}
+.source-content::-webkit-scrollbar{width:4px}
+.source-content::-webkit-scrollbar-track{background:var(--bg)}
+.source-content::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.source-content p{margin-bottom:16px}
+.source-content strong{color:var(--t1);font-weight:400}
+.source-content h3{font-family:var(--fh);font-size:22px;color:var(--t1);font-weight:400;margin:24px 0 12px;letter-spacing:-.3px}
+.source-content h3:first-child{margin-top:0}
+
+.source-meta{display:flex;gap:24px;margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)}
+.source-stat{font-size:11px;color:var(--t3)}
+.source-stat strong{color:var(--t2);font-weight:500}
+
+/* Platform tabs */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:0;flex-wrap:wrap}
+.tab-btn{
+  background:none;border:none;color:var(--t3);font-family:var(--fd);font-size:11px;
+  letter-spacing:.8px;text-transform:uppercase;padding:10px 18px;cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.tab-btn:hover{color:var(--t2)}
+.tab-btn.active{color:var(--t1);border-bottom-color:var(--grn)}
+.tab-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.tab-panel{display:none;padding:24px}
+.tab-panel.active{display:block}
+
+/* Platform preview wrapper */
+.preview-layout{display:grid;grid-template-columns:1fr 300px;gap:24px}
+@media(max-width:900px){.preview-layout{grid-template-columns:1fr}}
+
+/* Copy display */
+.copy-block{
+  background:var(--bg-in);border:1px solid var(--bdr);padding:20px;
+  font-size:14px;line-height:1.7;color:var(--t1);white-space:pre-wrap;
+  font-family:var(--fb);max-height:500px;overflow-y:auto;
+}
+.copy-block::-webkit-scrollbar{width:4px}
+.copy-block::-webkit-scrollbar-track{background:var(--bg-in)}
+.copy-block::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.copy-block .hashtag{color:var(--slt)}
+.copy-block .mention{color:var(--slt)}
+.copy-block .thread-num{color:var(--grn);font-family:var(--fd);font-size:12px;font-weight:500}
+
+/* Sidebar: guidelines + stats */
+.guide-panel{font-size:12px;color:var(--t2);line-height:1.7}
+.guide-section{margin-bottom:20px}
+.guide-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-family:var(--fd)}
+.guide-list{list-style:none}
+.guide-list li{padding:4px 0;border-bottom:1px solid rgba(58,56,48,.3)}
+.guide-list li:last-child{border-bottom:none}
+.guide-list .label{color:var(--t3);font-family:var(--fd);font-size:11px}
+.guide-list .value{float:right;font-family:var(--fd);font-size:11px;font-weight:500}
+.value.good{color:var(--grn-b)}
+.value.warn{color:var(--gld)}
+.value.over{color:var(--sie)}
+
+/* Character count bar */
+.char-bar{margin-top:8px}
+.char-bar-label{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:4px;font-family:var(--fd);letter-spacing:.5px}
+.char-bar-track{height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.char-bar-fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* Voice check */
+.voice-check{margin-top:16px}
+.vc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(58,56,48,.3)}
+.vc-row:last-child{border-bottom:none}
+.vc-label{font-size:11px;color:var(--t2);font-family:var(--fd)}
+.vc-status{font-size:10px;font-family:var(--fd);letter-spacing:.5px;padding:2px 8px;border:1px solid}
+.vc-pass{color:var(--grn-b);border-color:rgba(122,154,106,.3);background:rgba(122,154,106,.06)}
+.vc-note{color:var(--gld);border-color:rgba(184,164,74,.3);background:rgba(184,164,74,.06)}
+
+/* Comparison strip */
+.compare-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);margin-bottom:20px}
+.compare-cell{background:var(--bg-card);padding:14px;text-align:center;cursor:pointer;transition:background .2s}
+.compare-cell:hover{background:var(--bg-alt)}
+.compare-cell.active{background:rgba(122,154,106,.06)}
+.cc-platform{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.cc-chars{font-size:18px;font-weight:500;color:var(--t1)}
+.cc-label{font-size:10px;color:var(--t3);margin-top:2px}
+
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--bdr);font-size:11px;color:var(--t3);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="header">
+  <div class="bm">Yow<em>i</em>e</div>
+  <div class="hs">Content Repurposing Tool</div>
+</header>
+
+<!-- Source Content -->
+<div class="card">
+  <div class="ct">Source Content</div>
+  <div class="cd">Original blog post — the single input from which all platform versions are derived</div>
+  <div class="source-content" id="sourceContent">
+    <h3>Five Days in the Wind River Range with the Basecamp 45L</h3>
+    <p>The Wind River Range doesn't care what you're carrying. Granite Pass doesn't get easier because your pack cost more. Island Lake doesn't look different through the mesh of a premium hip belt.</p>
+    <p>But the pack on your back determines whether you're thinking about the trail or thinking about your shoulders. And after five days on the Elkhart Park loop, the thing I noticed most about the Basecamp 45L was how little I noticed it.</p>
+    <p><strong>Day one.</strong> 38 lbs at the trailhead. Food for five days, a bear canister wedged vertically against the framesheet, and one too many layers because I still don't trust July weather above 10,000 feet. The Basecamp's load lifters pulled the weight high and centered. The hip belt did what hip belts are supposed to do — transferred 80% of the load to my hips so my shoulders could just stabilize.</p>
+    <p><strong>Day three.</strong> Half the food was gone, which usually means a sloppy pack that's lost its frame geometry. The Basecamp compressed down cleanly. The thermoformed HDPE framesheet doesn't rely on a full load to hold its shape — it's rigid enough to carry well at 25 lbs or 38.</p>
+    <p><strong>Day five.</strong> Back at the truck. The 1680D sailcloth nylon had granite dust ground into every surface. The YKK AquaGuard zippers were full of trail grit from an afternoon thunderstorm on day four. Everything still worked.</p>
+    <p>I've carried enough packs to have opinions about all of them. Most of those opinions are complaints. The Basecamp didn't give me anything to complain about. It carried the weight, handled the weather, compressed when it needed to, and disappeared into the trip.</p>
+    <p>That's what good gear does. It stops being gear and starts being invisible. The Basecamp 45L does that better than anything I've carried in twenty years.</p>
+    <p><strong>Yowie Basecamp 45L. $385. Lifetime warranty. No receipt required.</strong></p>
+  </div>
+  <div class="source-meta">
+    <span class="source-stat"><strong id="srcWordCount">0</strong> words</span>
+    <span class="source-stat"><strong id="srcCharCount">0</strong> characters</span>
+    <span class="source-stat"><strong>Type:</strong> Blog post / trip report</span>
+  </div>
+</div>
+
+<!-- Comparison Strip -->
+<div class="compare-strip" id="compareStrip"></div>
+
+<!-- Platform Outputs -->
+<div class="card" style="padding:0;overflow:hidden">
+  <div class="tab-bar" id="tabBar"></div>
+  <div id="tabPanels"></div>
+</div>
+
+<!-- Adaptation Notes -->
+<div class="card" style="margin-top:20px;">
+  <div class="ct">Adaptation Strategy</div>
+  <div class="cd">How the source content was transformed for each platform</div>
+  <div style="font-size:12px;color:var(--t2);line-height:1.7;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:20px" id="adaptNotes">
+  </div>
+</div>
+
+<footer class="footer">
+  <span>Yowie Content Repurposing &middot; Source: Wind River Range blog post</span>
+  <span>All versions follow Yowie brand voice guidelines</span>
+</footer>
+</div>
+
+<script>
+// ============================================================
+// PLATFORM DATA
+// ============================================================
+const PLATFORMS = [
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    color: '#0a66c2',
+    icon: 'Li',
+    charLimit: 3000,
+    charLabel: 'Post character limit',
+    guidelines: [
+      {label:'Max characters', value:'3,000'},
+      {label:'Ideal length', value:'1,200–1,800'},
+      {label:'Hashtags', value:'3–5 max'},
+      {label:'Tone', value:'Professional, first-person'},
+      {label:'Hook', value:'First 2 lines visible before "See more"'},
+      {label:'CTA style', value:'Soft / conversational'},
+    ],
+    voiceChecks: [
+      {trait:'Plainspoken', pass:true, note:'Short sentences, no corporate jargon'},
+      {trait:'Confident', pass:true, note:'First-person authority, no hedging'},
+      {trait:'Restrained', pass:true, note:'No hard sell, no urgency'},
+      {trait:'Respectful', pass:true, note:'Speaks peer-to-peer, assumes gear knowledge'},
+      {trait:'Dry', pass:true, note:'"The pack doesn\'t have opinions. I do." — understated'},
+    ],
+    copy: `I carried a pack for five days through the Wind River Range last month. 38 lbs at the trailhead. Granite passes. An afternoon thunderstorm that turned every zipper into a mud trap.
+
+The pack was the Yowie Basecamp 45L. Here's what I noticed about it:
+
+Almost nothing.
+
+It carried the weight where it should be — on the hips, not the shoulders. It compressed cleanly when the food ran out on day three. The sailcloth nylon body had granite dust ground into every surface by day five. Everything still worked.
+
+Most of the packs I've carried over twenty years gave me something to complain about. This one didn't.
+
+The Basecamp is built from 1680D sailcloth nylon — the same material used in commercial rigging and marine sails. Single compartment. Thermoformed framesheet. YKK AquaGuard zippers. $385. Lifetime warranty, no receipt.
+
+It's not for everyone. It's for people who've carried enough packs to know what matters.
+
+The pack doesn't have opinions. I do. And my opinion is that this is the best pack I've used in twenty years of backcountry travel.
+
+#backpacking #outdoorgear #windriverrange #gearthatworks #yowie`,
+    adaptNote: '<strong>What changed:</strong> Rewritten in first-person professional voice. Opens with a hook that\'s visible before "See more" (the reveal: "Almost nothing"). Specs moved to middle, not lead. Personal credibility statement ("twenty years of backcountry travel") added for LinkedIn\'s authority-driven feed. Hashtags are specific and restrained (5, not 15). No @ mentions or tagging — the brand speaks for itself.<br><br><strong>What was cut:</strong> Day-by-day narrative structure compressed into key moments. Poetic language ("the Wind River Range doesn\'t care") removed — LinkedIn rewards direct, opinionated statements.',
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    color: '#e1306c',
+    icon: 'Ig',
+    charLimit: 2200,
+    charLabel: 'Caption character limit',
+    guidelines: [
+      {label:'Max characters', value:'2,200'},
+      {label:'Ideal length', value:'150–400'},
+      {label:'Hashtags', value:'5–15 (end of caption)'},
+      {label:'Tone', value:'Visual-first, caption supports image'},
+      {label:'Line breaks', value:'Use for readability'},
+      {label:'First line', value:'Must hook — appears in feed preview'},
+    ],
+    voiceChecks: [
+      {trait:'Plainspoken', pass:true, note:'Sentence fragments match Instagram cadence'},
+      {trait:'Confident', pass:true, note:'States facts, no qualifiers'},
+      {trait:'Restrained', pass:true, note:'No "link in bio" push, no urgency'},
+      {trait:'Respectful', pass:true, note:'Assumes the reader has been there'},
+      {trait:'Dry', note:true, note:'Closing line is understated'},
+    ],
+    copy: `38 lbs. Five days. Elkhart Park to Island Lake and back.
+
+The Basecamp 45L carried everything — bear canister, five days of food, one too many layers — and gave me nothing to think about. By day three, I forgot it was there.
+
+Day five: granite dust in the sailcloth. Grit in every zipper. Everything still worked.
+
+1680D sailcloth nylon. Thermoformed frame. YKK AquaGuard zippers. $385.
+
+Built to disappear into the trip.
+
+·
+·
+·
+#windriverrange #backpacking #basecamppack #yowie #trailgear #backcountry #gearthatworks #multiday #wyoming`,
+    adaptNote: '<strong>What changed:</strong> Compressed to under 500 characters of body copy (before hashtags). Opens with numbers — 38 lbs, five days — which scan well in a fast-scrolling feed. Caption is designed to support a landscape photo, not replace it. Line breaks for Instagram\'s mobile reading pattern. Hashtag block separated by dot spacers (Instagram convention).<br><br><strong>What was cut:</strong> All narrative structure. No "Day one / Day three" headings — those need visual support. The warranty message and price are stated once, plainly. No "link in bio" — Yowie\'s voice doesn\'t push.',
+  },
+  {
+    id: 'email',
+    name: 'Email Newsletter',
+    color: '#7a9a6a',
+    icon: 'Em',
+    charLimit: 5000,
+    charLabel: 'Recommended max for newsletter snippet',
+    guidelines: [
+      {label:'Ideal length', value:'200–400 words'},
+      {label:'Subject line', value:'Under 50 characters'},
+      {label:'Preview text', value:'40–90 characters'},
+      {label:'CTA', value:'Single, clear, low-pressure'},
+      {label:'Tone', value:'Conversational, first-person'},
+      {label:'Format', value:'Short paragraphs, no walls of text'},
+    ],
+    voiceChecks: [
+      {trait:'Plainspoken', pass:true, note:'Short paragraphs, conversational pacing'},
+      {trait:'Confident', pass:true, note:'"The Basecamp did what it does" — no hedging'},
+      {trait:'Restrained', pass:true, note:'CTA is "See the Basecamp" — not "Buy Now"'},
+      {trait:'Respectful', pass:true, note:'Assumes reader knows the Wind Rivers'},
+      {trait:'Dry', pass:true, note:'"I have opinions about most of them" — classic Yowie tone'},
+    ],
+    copy: `Subject: Five days. No complaints.
+Preview: What the Basecamp 45L looked like after the Wind River Range.
+
+—
+
+I took the Basecamp 45L into the Wind River Range for five days last month. Elkhart Park trailhead. 38 lbs at the start. Granite Pass. Island Lake. An afternoon thunderstorm that tested every zipper on day four.
+
+Here's what I noticed about the pack: almost nothing. And that's the point.
+
+It carried 38 lbs with the weight on the hips, not the shoulders. It compressed cleanly when half the food was gone. The 1680D sailcloth nylon had granite dust ground into it by day five. The YKK AquaGuard zippers were full of grit. Everything still worked.
+
+I've carried a lot of packs over twenty years. I have opinions about most of them. The Basecamp didn't give me anything new to complain about. It just carried the weight and got out of the way.
+
+That's what we built it for.
+
+→ See the Basecamp  [ link ]
+
+—
+
+Yowie Basecamp 45L · $385 · Lifetime warranty · No receipt required`,
+    adaptNote: '<strong>What changed:</strong> Formatted as a newsletter snippet with subject line and preview text. First-person voice matches the blog but tightened to ~180 words. "See the Basecamp" CTA matches the email sequence style (Tutorial 06). Simple text dividers (—) replace HTML formatting for a newsletter-within-newsletter feel. Subject line ("Five days. No complaints.") mirrors the brand voice example from the brand definition.<br><br><strong>What was cut:</strong> Day-by-day structure collapsed to key moments. Technical specs reduced to two (sailcloth nylon, AquaGuard zippers). The warranty line moves to a sign-off footer, not the body.',
+  },
+  {
+    id: 'meta',
+    name: 'Meta Ad',
+    color: '#1877f2',
+    icon: 'Fb',
+    charLimit: 125,
+    charLabel: 'Primary text before "See more"',
+    guidelines: [
+      {label:'Primary text visible', value:'~125 chars'},
+      {label:'Primary text max', value:'~500 chars'},
+      {label:'Headline', value:'Under 40 chars'},
+      {label:'Link description', value:'Under 30 chars'},
+      {label:'CTA button', value:'Learn More (restrained)'},
+      {label:'Tone', value:'Direct, spec-forward'},
+    ],
+    voiceChecks: [
+      {trait:'Plainspoken', pass:true, note:'Spec-forward, no marketing language'},
+      {trait:'Confident', pass:true, note:'Facts stated directly'},
+      {trait:'Restrained', pass:true, note:'No urgency, CTA is "Learn More"'},
+      {trait:'Respectful', pass:true, note:'Leads with the trip, not the product'},
+      {trait:'Dry', pass:true, note:'"Everything still worked" — peak understated'},
+    ],
+    copy: `Five days in the Wind River Range. 38 lbs over granite passes. An afternoon thunderstorm that filled every zipper with grit.
+
+Everything still worked.
+
+The Basecamp 45L: 1680D sailcloth nylon. Thermoformed frame. YKK AquaGuard zippers. $385. Lifetime warranty. No receipt.
+
+——
+
+Headline: Basecamp 45L — Five days, no complaints.
+Description: Built to disappear into the trip.
+CTA: Learn More`,
+    adaptNote: '<strong>What changed:</strong> First 125 characters tell the story (trip + conditions) to hook before the "See more" fold. Product specs come after the hook — people who click "See more" are interested enough for details. Headline and description formatted as separate fields. CTA is "Learn More" (not "Shop Now") per the Meta ad generator scoring (Tutorial 09).<br><br><strong>What was cut:</strong> Nearly everything. A Meta ad is 80% reduction from the source. The entire narrative collapses to: conditions → result → specs → price. No first-person — the ad is the brand speaking, not a person.',
+  },
+  {
+    id: 'twitter',
+    name: 'Tweet Thread',
+    color: '#1da1f2',
+    icon: 'Tw',
+    charLimit: 280,
+    charLabel: 'Per-tweet character limit',
+    guidelines: [
+      {label:'Per tweet', value:'280 characters'},
+      {label:'Thread length', value:'4–8 tweets ideal'},
+      {label:'First tweet', value:'Must hook — standalone value'},
+      {label:'Last tweet', value:'CTA or summary'},
+      {label:'Tone', value:'Conversational, punchy'},
+      {label:'Numbers', value:'Tweets with numbers get 2x engagement'},
+    ],
+    voiceChecks: [
+      {trait:'Plainspoken', pass:true, note:'Tweet-length forces plainspoken'},
+      {trait:'Confident', pass:true, note:'Each tweet is a standalone statement'},
+      {trait:'Restrained', pass:true, note:'No "retweet if you agree" engagement bait'},
+      {trait:'Respectful', pass:true, note:'Speaks to experienced hikers'},
+      {trait:'Dry', pass:true, note:'Thread pacing creates dry delivery'},
+    ],
+    copy: `<span class="thread-num">1/6</span>
+Took the Basecamp 45L into the Wind River Range for five days. 38 lbs at the trailhead. Granite passes. A thunderstorm on day four.
+
+Here's what I noticed about the pack:
+
+<span class="thread-num">2/6</span>
+Almost nothing.
+
+It carried the weight on my hips, not my shoulders. It compressed cleanly when half the food was gone. By day three I stopped thinking about it.
+
+That's the whole review.
+
+<span class="thread-num">3/6</span>
+The body is 1680D sailcloth nylon — the same stuff they use in commercial rigging and marine sails. Not standard backpack fabric. Costs 3x more. They use it anyway.
+
+<span class="thread-num">4/6</span>
+Day five: granite dust ground into every surface. Zipper grit from the storm. Everything still worked.
+
+I've carried a lot of packs. Most of them gave me something to complain about. This one didn't.
+
+<span class="thread-num">5/6</span>
+Single compartment. Thermoformed HDPE framesheet. YKK AquaGuard zippers. No rain cover needed.
+
+$385. Lifetime warranty. No receipt required.
+
+<span class="thread-num">6/6</span>
+Yowie makes one pack. Not a line. Not a collection. One pack.
+
+For people who've been carrying long enough to know what matters.
+
+yowie.example/basecamp`,
+    adaptNote: '<strong>What changed:</strong> Blog narrative broken into 6 tweets, each able to stand alone. Tweet 1 sets up the trip. Tweet 2 delivers the punchline ("Almost nothing"). Tweets 3–5 provide specs in digestible chunks. Tweet 6 closes with brand positioning and link. Thread structure creates pacing that mimics the blog\'s dry delivery — the "reveal" comes in tweet 2, not tweet 1.<br><br><strong>What was cut:</strong> Day-by-day markers condensed. Emotional language removed. Each tweet is factual and punchy. No hashtags in thread (they read as desperate on X/Twitter). No engagement bait ("What\'s your go-to pack?").',
+  },
+];
+
+// ============================================================
+// RENDER
+// ============================================================
+function countChars(text) {
+  // Strip HTML tags for counting
+  return text.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().length;
+}
+
+function countWords(text) {
+  return text.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+function init() {
+  // Source stats
+  const srcText = document.getElementById('sourceContent').textContent;
+  document.getElementById('srcWordCount').textContent = countWords(srcText);
+  document.getElementById('srcCharCount').textContent = srcText.trim().length.toLocaleString();
+
+  // Comparison strip
+  const strip = document.getElementById('compareStrip');
+  strip.innerHTML = PLATFORMS.map((p, i) => {
+    const chars = countChars(p.copy);
+    return `<div class="compare-cell ${i === 0 ? 'active' : ''}" onclick="switchTab('${p.id}')" id="cc-${p.id}">
+      <div class="cc-platform" style="color:${p.color}">${p.name}</div>
+      <div class="cc-chars">${chars.toLocaleString()}</div>
+      <div class="cc-label">characters</div>
+    </div>`;
+  }).join('');
+
+  // Tab bar
+  const tabBar = document.getElementById('tabBar');
+  tabBar.innerHTML = PLATFORMS.map((p, i) => {
+    return `<button class="tab-btn ${i === 0 ? 'active' : ''}" data-tab="${p.id}" onclick="switchTab('${p.id}')">
+      <span class="tab-dot" style="background:${p.color}"></span>${p.name}
+    </button>`;
+  }).join('');
+
+  // Tab panels
+  const panels = document.getElementById('tabPanels');
+  panels.innerHTML = PLATFORMS.map((p, i) => {
+    const chars = countChars(p.copy);
+    const words = countWords(p.copy);
+    const charPct = Math.min((chars / p.charLimit) * 100, 100);
+    const charStatus = charPct <= 70 ? 'good' : charPct <= 95 ? 'warn' : 'over';
+    const charColor = charStatus === 'good' ? 'var(--grn)' : charStatus === 'warn' ? 'var(--gld)' : 'var(--sie)';
+
+    let guideHTML = '<ul class="guide-list">';
+    p.guidelines.forEach(g => {
+      guideHTML += `<li><span class="label">${g.label}</span><span class="value">${g.value}</span></li>`;
+    });
+    guideHTML += '</ul>';
+
+    let voiceHTML = '<div class="voice-check">';
+    p.voiceChecks.forEach(vc => {
+      voiceHTML += `<div class="vc-row">
+        <span class="vc-label">${vc.trait}</span>
+        <span class="vc-status ${vc.pass ? 'vc-pass' : 'vc-note'}">${vc.pass ? 'PASS' : 'NOTE'}</span>
+      </div>`;
+    });
+    voiceHTML += '</div>';
+
+    return `<div class="tab-panel ${i === 0 ? 'active' : ''}" id="panel-${p.id}">
+      <div class="preview-layout">
+        <div>
+          <div class="copy-block">${p.copy}</div>
+        </div>
+        <div class="guide-panel">
+          <div class="guide-section">
+            <div class="guide-title">Platform Guidelines</div>
+            ${guideHTML}
+          </div>
+
+          <div class="guide-section">
+            <div class="guide-title">Content Stats</div>
+            <ul class="guide-list">
+              <li><span class="label">Characters</span><span class="value ${charStatus}">${chars.toLocaleString()}</span></li>
+              <li><span class="label">Words</span><span class="value">${words}</span></li>
+              <li><span class="label">Limit</span><span class="value">${p.charLimit.toLocaleString()}</span></li>
+            </ul>
+            <div class="char-bar">
+              <div class="char-bar-label">
+                <span>${Math.round(charPct)}% of limit</span>
+                <span>${chars.toLocaleString()} / ${p.charLimit.toLocaleString()}</span>
+              </div>
+              <div class="char-bar-track">
+                <div class="char-bar-fill" style="width:${charPct}%;background:${charColor}"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-section">
+            <div class="guide-title">Brand Voice Check</div>
+            ${voiceHTML}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Adaptation notes
+  const notes = document.getElementById('adaptNotes');
+  notes.innerHTML = PLATFORMS.map(p => {
+    return `<div style="padding:16px;background:var(--bg-in);border:1px solid var(--bdr)">
+      <div style="font-size:10px;color:${p.color};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-family:var(--fd)">${p.name}</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7">${p.adaptNote}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.compare-cell').forEach(c => c.classList.remove('active'));
+
+  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+  document.getElementById('cc-' + id).classList.add('active');
+}
+
+init();
+</script>
+</body>
+</html>
