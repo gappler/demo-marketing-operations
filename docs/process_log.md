@@ -7,6 +7,28 @@ created: 2026-04-05
 
 # Process Log
 
+## [2026-04-08 00:00] Skills Inventory and Methodology Notes
+
+**Prompt:**
+> List all skills, agents, sub-agents, and tools that were invoked during this project's build sessions. Include the superpowers skills that were called and any MCP servers or external tools used. Then create docs/project_notes.md with the inventory and build methodology pattern as a reusable reference.
+
+**What was built:**
+- `docs/project_notes.md` — ongoing project notes file containing:
+  - Full skills inventory (superpowers skills, built-in tools, MCP servers)
+  - Complete list of 12 tools and supporting artifacts built
+  - Reusable build methodology pattern (8 sections covering foundation-first approach, prompt chaining, single-file HTML architecture, process discipline, and skill selection guide)
+
+**Key decisions:**
+- Structured as an ongoing log rather than a one-time document, with a marker for appending future entries
+- Included YAML metadata header per global preferences
+- Documented the sequential prompt-chaining pattern as a reusable reference since it was the core architectural approach
+
+**Files created or modified:**
+- `docs/project_notes.md` (created)
+- `docs/process_log.md` (modified — this entry)
+
+---
+
 ## [2026-04-05 00:00] Customer Segment Analyzer
 
 **Prompt:**

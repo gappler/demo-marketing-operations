@@ -2,42 +2,28 @@
 
 ## Process Logging
 
-Every task must be logged to `docs/process_log.md`. Each entry must include:
+After completing any task, append a log entry to docs/process_log.md with:
+- Timestamp
+- The full prompt that initiated the task
+- What was built
+- Key decisions made and why
+- All file paths created or modified
 
-- **Timestamp** — date and time the task was completed
-- **Prompt** — the full user prompt that initiated the task
-- **What was built** — concise description of deliverables produced
-- **Key decisions** — non-obvious choices made during execution and why
-- **File paths** — all files created or modified
-
-Log entries are appended in reverse chronological order (newest first). Use the following format:
-
-```
-## [YYYY-MM-DD HH:MM] Task Title
-
-**Prompt:**
-> (full user prompt)
-
-**What was built:**
-- (deliverables)
-
-**Key decisions:**
-- (decision — rationale)
-
-**File paths:**
-- (paths)
-
----
-```
+Log entries go newest first.
 
 ## Tutorials
 
-After each tool or deliverable is built, generate a step-by-step tutorial in the `tutorials/` folder. Tutorials must:
+After each tool is built, generate a step-by-step tutorial in tutorials/ documenting:
+- The exact prompts used
+- Key decisions and rationale
+- The final output or file path
+- Written as if teaching someone to replicate from scratch
+- Named sequentially: tutorials/01_short_name.md, 02_short_name.md, etc.
 
-- Document the exact prompts used to produce the output
-- Explain key decisions and why they were made
-- Show the final output (or reference the file path)
-- Be written as if teaching someone to replicate the work from scratch
-- Follow the naming convention: `tutorials/NN_short_name.md` (zero-padded, sequential)
+## Guided Tour Page
 
-Tutorials are learning artifacts — they should be clear, honest about tradeoffs, and useful to someone who has never seen this project before.
+After all tools are complete, generate an index.html guided tour page that showcases each tool in sequence. For each tool show: the tool name, the problem it solves, the prompt that built it, and an embedded preview of the output.
+
+## Git Discipline
+
+After completing each tool, stage all changes and commit with a descriptive message. Do not wait for multiple tools to accumulate before committing.
