@@ -8,11 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#141310;--bg2:#1c1b17;--bg3:#23221c;--bg4:#2a2923;
-  --bdr:#3a3830;--bdr2:#4a4838;
-  --t1:#d4cfc0;--t2:#8a8575;--t3:#5a5648;--t4:#3a3830;
-  --grn:#7a9a6a;--grn-b:#9aba8a;--grn-d:rgba(122,154,106,.1);
-  --sie:#c2755a;--gld:#b8a44a;--slt:#6a8a9a;--cly:#9a7a6a;
+  --bg:#f5f4f0;--bg2:#eeedea;--bg3:#fff;--bg4:#f9f8f6;
+  --bdr:#ddd8ce;--bdr2:#c8c3b8;
+  --t1:#1a1916;--t2:#4a4840;--t3:#7a7868;--t4:#a8a598;
+  --grn:#5a7a4a;--grn-b:#4a6a3a;--grn-d:rgba(90,122,74,.08);
+  --sie:#b0654a;--gld:#9a8a3a;--slt:#4a7080;--cly:#8a6a5a;
   --fh:'Cormorant Garamond',Georgia,serif;
   --fb:'Source Serif 4',Georgia,serif;
   --fm:'IBM Plex Mono','Courier New',monospace;
@@ -26,9 +26,9 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .progress-fill{height:100%;background:var(--grn);width:0;transition:width .3s}
 
 /* Navigation */
-.nav{position:fixed;top:3px;left:0;right:0;z-index:100;padding:14px 40px;display:flex;justify-content:space-between;align-items:center;transition:all .4s;background:rgba(20,19,16,.95);backdrop-filter:blur(12px);border-bottom:1px solid transparent}
+.nav{position:fixed;top:3px;left:0;right:0;z-index:100;padding:14px 40px;display:flex;justify-content:space-between;align-items:center;transition:all .4s;background:rgba(245,244,240,.97);backdrop-filter:blur(12px);border-bottom:1px solid transparent}
 .nav.scrolled{border-bottom-color:var(--bdr)}
-.nav-logo{font-family:var(--fh);font-size:20px;color:var(--t1);text-decoration:none;letter-spacing:-.3px;font-weight:400}
+.nav-logo{font-family:var(--fh);font-size:20px;color:var(--t1);text-decoration:none;letter-spacing:-.3px;font-weight:500}
 .nav-logo em{font-style:italic;color:var(--grn)}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-counter{font-family:var(--fm);font-size:11px;color:var(--t3);letter-spacing:.5px}
@@ -38,17 +38,17 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .nav-btn:disabled:hover{border-color:var(--bdr);color:var(--t2)}
 
 /* Hero */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 40px;position:relative}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 50% 40%,rgba(122,154,106,.06),transparent)}
-.hero-tag{font-family:var(--fm);font-size:11px;color:var(--grn);letter-spacing:3px;text-transform:uppercase;margin-bottom:24px}
-.hero-title{font-family:var(--fh);font-size:clamp(44px,7vw,80px);font-weight:300;line-height:1.1;letter-spacing:-2px;margin-bottom:20px;max-width:900px}
-.hero-title em{font-style:italic;color:var(--grn)}
-.hero-sub{font-size:19px;font-weight:300;color:var(--t2);max-width:600px;line-height:1.7;margin-bottom:40px}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 40px;position:relative;background:#1a1916;color:#f5f4f0}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 50% 40%,rgba(90,122,74,.12),transparent)}
+.hero-tag{font-family:var(--fm);font-size:11px;color:#8aaa7a;letter-spacing:3px;text-transform:uppercase;margin-bottom:24px}
+.hero-title{font-family:var(--fh);font-size:clamp(44px,7vw,80px);font-weight:300;line-height:1.1;letter-spacing:-2px;margin-bottom:20px;max-width:900px;color:#f5f4f0}
+.hero-title em{font-style:italic;color:#8aaa7a}
+.hero-sub{font-size:19px;font-weight:300;color:#a8a598;max-width:600px;line-height:1.7;margin-bottom:40px}
 .hero-stats{display:flex;gap:48px;align-items:center}
 .hero-stat{text-align:center}
-.hero-stat-val{font-family:var(--fh);font-size:42px;font-weight:400;color:var(--t1);letter-spacing:-1px}
-.hero-stat-label{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
-.hero-scroll{position:absolute;bottom:40px;font-family:var(--fm);font-size:10px;color:var(--t4);letter-spacing:2px;text-transform:uppercase}
+.hero-stat-val{font-family:var(--fh);font-size:42px;font-weight:400;color:#f5f4f0;letter-spacing:-1px}
+.hero-stat-label{font-family:var(--fm);font-size:10px;color:#7a7868;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.hero-scroll{position:absolute;bottom:40px;font-family:var(--fm);font-size:10px;color:#4a4840;letter-spacing:2px;text-transform:uppercase}
 
 /* Section */
 .section{padding:100px 40px;border-top:1px solid var(--bdr);position:relative}
@@ -57,42 +57,42 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .section-inner{max-width:1100px;margin:0 auto}
 
 .step-badge{display:inline-flex;align-items:center;gap:10px;margin-bottom:20px}
-.step-number{font-family:var(--fm);font-size:11px;color:var(--bg);background:var(--grn);padding:3px 10px;letter-spacing:1px}
+.step-number{font-family:var(--fm);font-size:11px;color:#fff;background:var(--grn);padding:3px 10px;letter-spacing:1px}
 .step-phase{font-family:var(--fm);font-size:11px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase}
 
-.section-title{font-family:var(--fh);font-size:clamp(32px,4vw,48px);font-weight:300;line-height:1.2;letter-spacing:-1px;margin-bottom:8px}
+.section-title{font-family:var(--fh);font-size:clamp(32px,4vw,48px);font-weight:300;line-height:1.2;letter-spacing:-1px;margin-bottom:8px;color:var(--t1)}
 .section-title em{font-style:italic;color:var(--grn)}
 
 .section-problem{font-size:15px;color:var(--t2);margin-bottom:32px;max-width:700px;line-height:1.7;font-weight:300}
 
 /* Prompt display */
-.prompt-block{background:var(--bg3);border:1px solid var(--bdr);padding:20px 24px;margin-bottom:32px;position:relative}
-.prompt-label{font-family:var(--fm);font-size:10px;color:var(--grn);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.prompt-label::before{content:'>';color:var(--grn)}
-.prompt-text{font-family:var(--fm);font-size:13px;color:var(--t2);line-height:1.6;white-space:pre-wrap}
+.prompt-block{background:#1a1916;border:1px solid #2a2926;padding:20px 24px;margin-bottom:32px;position:relative;border-radius:4px}
+.prompt-label{font-family:var(--fm);font-size:10px;color:#8aaa7a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.prompt-label::before{content:'>';color:#8aaa7a}
+.prompt-text{font-family:var(--fm);font-size:13px;color:#a8a598;line-height:1.6;white-space:pre-wrap}
 
 /* Output display */
-.output-frame{border:1px solid var(--bdr);background:var(--bg3);overflow:hidden;margin-bottom:24px}
+.output-frame{border:1px solid var(--bdr);background:var(--bg3);overflow:hidden;margin-bottom:24px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .output-toolbar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--bg4);border-bottom:1px solid var(--bdr)}
 .output-dots{display:flex;gap:6px}
 .output-dot{width:8px;height:8px;border-radius:50%;background:var(--bdr2)}
 .output-filename{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.5px}
-.output-badge{font-family:var(--fm);font-size:9px;color:var(--grn);letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border:1px solid rgba(122,154,106,.3);background:rgba(122,154,106,.06)}
+.output-badge{font-family:var(--fm);font-size:9px;color:var(--grn);letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border:1px solid rgba(90,122,74,.3);background:rgba(90,122,74,.06)}
 .output-body{padding:24px;max-height:500px;overflow-y:auto;font-family:var(--fm);font-size:13px;color:var(--t2);line-height:1.7}
 .output-body::-webkit-scrollbar{width:4px}
 .output-body::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
 
 /* Iframe embed */
-.embed-frame{border:1px solid var(--bdr);overflow:hidden;margin-bottom:24px}
+.embed-frame{border:1px solid var(--bdr);overflow:hidden;margin-bottom:24px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .embed-toolbar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--bg4);border-bottom:1px solid var(--bdr)}
-.embed-iframe{width:100%;height:520px;border:none;background:#1a1915}
+.embed-iframe{width:100%;height:520px;border:none;background:#fff}
 .embed-link{font-family:var(--fm);font-size:11px;color:var(--grn);text-decoration:none;letter-spacing:.5px}
 .embed-link:hover{text-decoration:underline}
 
 /* Result stats */
-.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--bdr);border:1px solid var(--bdr);margin-bottom:24px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--bdr);border:1px solid var(--bdr);margin-bottom:24px;border-radius:4px;overflow:hidden}
 .result-cell{background:var(--bg3);padding:16px;text-align:center}
-.result-val{font-family:var(--fh);font-size:28px;font-weight:400;letter-spacing:-.5px}
+.result-val{font-family:var(--fh);font-size:28px;font-weight:400;letter-spacing:-.5px;color:var(--t1)}
 .result-label{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
 
 /* Markdown render */
@@ -101,11 +101,11 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .md-render h2{font-size:22px}
 .md-render h3{font-size:18px}
 .md-render p{margin-bottom:12px}
-.md-render strong{color:var(--t1);font-weight:400}
+.md-render strong{color:var(--t1);font-weight:500}
 .md-render table{width:100%;border-collapse:collapse;font-family:var(--fm);font-size:12px;margin:12px 0}
 .md-render th{text-align:left;padding:8px;color:var(--t3);border-bottom:1px solid var(--bdr);font-weight:400;text-transform:uppercase;letter-spacing:.5px;font-size:10px}
-.md-render td{padding:8px;border-bottom:1px solid rgba(58,56,48,.3);color:var(--t2)}
-.md-render blockquote{border-left:2px solid var(--grn);padding:8px 16px;margin:12px 0;color:var(--t1);font-style:italic;background:rgba(122,154,106,.04)}
+.md-render td{padding:8px;border-bottom:1px solid rgba(221,216,206,.5);color:var(--t2)}
+.md-render blockquote{border-left:2px solid var(--grn);padding:8px 16px;margin:12px 0;color:var(--t1);font-style:italic;background:rgba(90,122,74,.04)}
 .md-render ul,.md-render li{color:var(--t2)}
 .md-render li{margin-bottom:4px}
 
@@ -114,22 +114,23 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 
 /* Email preview strip */
 .email-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
-.email-card{background:var(--bg3);border:1px solid var(--bdr);padding:16px;text-align:center;cursor:pointer;transition:border-color .3s}
-.email-card:hover{border-color:var(--grn)}
+.email-card{background:var(--bg3);border:1px solid var(--bdr);padding:16px;text-align:center;cursor:pointer;transition:all .3s;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.03)}
+.email-card:hover{border-color:var(--grn);box-shadow:0 2px 8px rgba(90,122,74,.1)}
 .email-day{font-family:var(--fm);font-size:10px;color:var(--grn);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
 .email-subj{font-family:var(--fh);font-size:16px;color:var(--t1);font-style:italic;line-height:1.3}
 
 /* CTA Section */
-.cta-section{text-align:center;padding:120px 40px;background:var(--bg);border-top:1px solid var(--bdr);position:relative}
-.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 50%,rgba(122,154,106,.06),transparent)}
-.cta-title{font-family:var(--fh);font-size:clamp(36px,5vw,56px);font-weight:300;line-height:1.2;letter-spacing:-1px;margin-bottom:16px;position:relative}
-.cta-sub{font-size:17px;font-weight:300;color:var(--t2);margin-bottom:48px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.7;position:relative}
-.cta-button{display:inline-block;font-family:var(--fm);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--bg);background:var(--grn);text-decoration:none;padding:18px 52px;transition:all .3s;position:relative}
-.cta-button:hover{background:var(--grn-b);transform:translateY(-1px)}
-.cta-below{font-family:var(--fm);font-size:11px;color:var(--t3);margin-top:20px;letter-spacing:.5px;position:relative}
+.cta-section{text-align:center;padding:120px 40px;background:#1a1916;color:#f5f4f0;border-top:1px solid #2a2926;position:relative}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 50%,rgba(90,122,74,.1),transparent)}
+.cta-title{font-family:var(--fh);font-size:clamp(36px,5vw,56px);font-weight:300;line-height:1.2;letter-spacing:-1px;margin-bottom:16px;position:relative;color:#f5f4f0}
+.cta-title em{color:#8aaa7a}
+.cta-sub{font-size:17px;font-weight:300;color:#a8a598;margin-bottom:48px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.7;position:relative}
+.cta-button{display:inline-block;font-family:var(--fm);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#1a1916;background:#8aaa7a;text-decoration:none;padding:18px 52px;transition:all .3s;position:relative}
+.cta-button:hover{background:#9aba8a;transform:translateY(-1px)}
+.cta-below{font-family:var(--fm);font-size:11px;color:#5a5848;margin-top:20px;letter-spacing:.5px;position:relative}
 
 /* Footer */
-.footer{border-top:1px solid var(--bdr);padding:32px 40px;display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;color:var(--t4);letter-spacing:.5px}
+.footer{border-top:1px solid var(--bdr);padding:32px 40px;display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;color:var(--t4);letter-spacing:.5px;background:var(--bg)}
 
 /* Responsive */
 @media(max-width:900px){
@@ -175,12 +176,11 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 <!-- Intro narrative -->
 <section class="section" id="step-intro">
   <div class="section-inner" style="max-width:700px">
-    <div class="step-badge"><span class="step-phase">The premise</span></div>
-    <h2 class="section-title">What if you could build an entire marketing operation in a single sitting?</h2>
+    <div class="step-badge"><span class="step-phase">The problem</span></div>
+    <h2 class="section-title">Marketing operations shouldn't require a <em>department</em></h2>
     <div style="margin-top:32px;font-size:17px;font-weight:300;color:var(--t2);line-height:1.8">
-      <p style="margin-bottom:20px">Not a slide deck. Not a strategy document. A working system — with real data, interactive dashboards, production-ready email templates, ad copy scored against brand guidelines, and a campaign simulator grounded in historical performance.</p>
-      <p style="margin-bottom:20px">We started with a single prompt: define a brand. From there, each tool built on the last. The brand definition fed the data generation. The data fed the dashboard. The dashboard insights fed the budget allocator. The brand voice constrained the email copy, the ad variants, the landing page.</p>
-      <p style="margin-bottom:20px">Every output is a direct input to the next tool. Nothing was built in isolation.</p>
+      <p style="margin-bottom:20px">Launching a campaign usually means weeks of coordination — brand strategists, data analysts, designers, copywriters, media buyers. Each handoff adds delay. Each silo introduces drift. By the time the work ships, the window has moved.</p>
+      <p style="margin-bottom:20px">This demo is a proof of concept: twelve working marketing tools built in a single afternoon with Claude Code. Not mockups. Not slide decks. Interactive dashboards, production-ready email sequences, ad copy scored against brand guidelines, and a campaign simulator grounded in historical performance — all for a fictional DTC brand called Yowie.</p>
       <p>What follows are the twelve tools, in the order they were built, with the exact prompts that created them.</p>
     </div>
   </div>
@@ -388,14 +388,27 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
   </div>
 </section>
 
+<!-- How this was built -->
+<section class="section" id="step-method">
+  <div class="section-inner" style="max-width:700px">
+    <div class="step-badge"><span class="step-phase">The methodology</span></div>
+    <h2 class="section-title">Foundation first. Then <em>sequence</em>.</h2>
+    <div style="margin-top:32px;font-size:17px;font-weight:300;color:var(--t2);line-height:1.8">
+      <p style="margin-bottom:20px">This wasn't twelve isolated prompts. It was one continuous build where each tool fed the next.</p>
+      <p style="margin-bottom:20px">The brand definition constrained every word of copy. The historical data grounded every chart and forecast. The dashboard insights shaped the budget allocator. The brand voice governed the email sequences, the ad variants, the landing page. The campaign simulator used actual channel performance to project outcomes.</p>
+      <p style="margin-bottom:20px">The order matters. You can't score ad copy against brand guidelines that don't exist yet. You can't allocate budget without channel performance data. You can't segment customers without order history. Each layer makes the next layer possible — and more accurate.</p>
+      <p>This is what separates a collection of AI outputs from a coherent system: the architecture of the conversation itself.</p>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta-section" id="step-cta">
-  <div class="hero-tag" style="margin-bottom:24px">What you just saw</div>
-  <h2 class="cta-title" style="font-family:var(--fh)">This is what an <em>agency</em> looks like now.</h2>
-  <p class="cta-sub">One person. One afternoon. Twelve production-grade marketing tools — from brand strategy to customer segmentation. Not mockups. Not decks. Working systems built through conversation with Claude Code.</p>
-  <p class="cta-sub" style="color:var(--t1);font-weight:400;margin-bottom:48px">The question isn't whether AI can do marketing.<br>It's whether you're still doing it the old way.</p>
-  <a href="https://claude.ai/code" class="cta-button" target="_blank">Try Claude Code</a>
-  <div class="cta-below">claude.ai/code</div>
+  <div class="hero-tag" style="margin-bottom:24px">Agency State</div>
+  <h2 class="cta-title" style="font-family:var(--fh)">Your next campaign, built in an <em>afternoon</em>.</h2>
+  <p class="cta-sub">Agency State helps businesses build marketing systems like this one — using AI to compress weeks of agency work into focused, high-output sessions. Strategy, data, creative, and analysis, delivered as working tools you own.</p>
+  <a href="https://agencystate.com" class="cta-button" target="_blank">Visit Agency State</a>
+  <div class="cta-below">agencystate.com</div>
 </section>
 
 <footer class="footer">
@@ -407,8 +420,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 // ============================================================
 // NAVIGATION
 // ============================================================
-const STEPS = ['step-0','step-intro','step-1','step-2','step-3','step-4','step-5','step-6','step-7','step-8','step-9','step-10','step-11','step-12','step-cta'];
-const LABELS = ['Intro','Premise','01 Brand','02 Data','03 Dashboard','04 Reports','05 Budget','06 Email','07 Landing','08 Compete','09 Ads','10 Simulator','11 Repurpose','12 Segments','Closing'];
+const STEPS = ['step-0','step-intro','step-1','step-2','step-3','step-4','step-5','step-6','step-7','step-8','step-9','step-10','step-11','step-12','step-method','step-cta'];
+const LABELS = ['Intro','The Problem','01 Brand','02 Data','03 Dashboard','04 Reports','05 Budget','06 Email','07 Landing','08 Compete','09 Ads','10 Simulator','11 Repurpose','12 Segments','Method','Agency State'];
 let currentStep = 0;
 
 function navigateStep(dir) {
