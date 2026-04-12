@@ -27,3 +27,26 @@ After all tools are complete, generate an index.html guided tour page that showc
 ## Git Discipline
 
 After completing each tool, stage all changes and commit with a descriptive message. Do not wait for multiple tools to accumulate before committing.
+
+## Logo and Layout Standards
+
+These standards apply across all demo repos.
+
+### Logo Assets
+
+- Dark wordmark: `assets/agency-state-wordmark.svg`
+- White wordmark: `assets/agency-state-wordmark-white.svg`
+- Monogram/mark: `assets/mark.svg`
+
+### Header
+
+- Agency State wordmark in the top left, linked to `https://agencystate.ai`
+- Dark wordmark on light backgrounds, white wordmark on dark backgrounds
+- `position: absolute` (scrolls with the hero), not `fixed`
+
+### Footer
+
+- Left: monogram + clickable wordmark SVG (linked to `https://agencystate.ai`), vertically centered
+- Right: `Built with Claude Code` in Inter, `font-size: 0.8125rem`, color `#5C5C5C`
+- No URL text — the wordmark link is sufficient
+- Footer font is always Inter regardless of what fonts the demo uses

@@ -7,6 +7,315 @@ created: 2026-04-05
 
 # Process Log
 
+## [2026-04-11 04:10] Add Logo/Layout Standards to CLAUDE.md
+
+**Prompt:**
+> Add a section to CLAUDE.md covering logo and layout standards for use across all demo repos: [logo assets, header, footer specs]
+
+**What was built:**
+- Appended a new `## Logo and Layout Standards` section to `CLAUDE.md` with three subsections:
+  - **Logo Assets** — paths for dark wordmark, white wordmark, and monogram
+  - **Header** — wordmark placement, dark vs. white variant rule, `position:absolute` scroll behavior
+  - **Footer** — monogram + clickable wordmark SVG on the left, "Built with Claude Code" in Inter on the right, no URL text, Inter enforced regardless of demo fonts
+
+**Files modified:**
+- `CLAUDE.md`
+- `docs/process_log.md`
+
+## [2026-04-11 04:00] Remove Methodology Section
+
+**Prompt:**
+> Remove the entire methodology section (id='step-method'). The CTA should follow directly after the last tool (Customer Segments). Also remove 'step-method' from the STEPS and LABELS arrays in the navigation JavaScript
+
+**What was built:**
+- Deleted the `#step-method` `<section>` and its "How this was built" comment; the CTA now follows immediately after the Customer Segments iframe
+- Removed `'step-method'` from the `STEPS` array and `'Method'` from the `LABELS` array in the navigation JS so Prev/Next skips it
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:55] Remove "Agency State" Eyebrow from CTA
+
+**Prompt:**
+> remove agency state from above the cta block at bottom of page
+
+**What was built:**
+- Removed the `<div class="hero-tag">Agency State</div>` eyebrow that sat above the CTA title "Build tools like these for your team."
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:50] Remove CTA Caption
+
+**Prompt:**
+> remove agencystate.ai from underneath the button in the bottom CTA
+
+**What was built:**
+- Deleted the `<div class="cta-below">agencystate.ai</div>` element beneath the "Visit Agency State" button in the CTA section
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:45] Simplify Footer Lockup
+
+**Prompt:**
+> In the footer, remove the 'agencystate.ai' text. Make the wordmark SVG a clickable link to agencystate.ai. Vertically center the monogram and wordmark so they align.
+
+**What was built:**
+- Removed the `<span>agencystate.ai</span>` line from the footer lockup
+- Converted `.footer-lockup` from a `<div>` stacked column to an `<a href="https://agencystate.ai">` linking to the main site (new tab)
+- Updated `.footer-lockup` CSS to `display:flex; align-items:center; text-decoration:none; line-height:1` so the wordmark SVG sits vertically centered next to the 56px monogram (the outer `.footer-left` already has `align-items:center`, so the two images now align on a shared center line)
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:35] Force Inter on Footer Text
+
+**Prompt:**
+> Set the footer text 'agencystate.ai' and 'Built with Claude Code' to font-family: 'Inter', sans-serif explicitly. The footer should be visually identical to the main website footer regardless of what fonts the demo uses.
+
+**What was built:**
+- Added Inter (weights 400, 700) to the Google Fonts `<link>` at the top of `index.html` so the font is actually loaded
+- Added `font-family: 'Inter', sans-serif` to both `.footer-left` and `.footer-right` CSS rules so the footer text renders in Inter regardless of inherited body fonts
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:25] Swap Footer Wordmark Text for SVG
+
+**Prompt:**
+> The footer should use the SVG wordmark image, not styled text. Copy the mark.svg and agency-state-wordmark.svg from the agency-state repo into this repo's assets folder. Use <img> tags for both, same as the main website footer does. Don't render the wordmark as text.
+
+**What was built:**
+- Verified `assets/mark.svg` and `assets/agency-state-wordmark.svg` were already in this repo (copied during earlier nav/footer tasks); no additional copies needed
+- Replaced the footer wordmark `<span>` text treatment with `<img src="assets/agency-state-wordmark.svg" class="wordmark">`, matching the pattern used by the main site nav (`.nav-type` at height 18px)
+- Rewrote `.footer-lockup .wordmark` CSS: removed `font-weight`/`color` text rules, added `height: 18px; width: auto; display: block;`
+- Removed the now-unused `.footer-lockup .wordmark .regular` rule
+- Monogram `<img src="assets/mark.svg">` was already in place from the earlier footer copy
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:15] Copy Exact Footer from Agency State Main Site
+
+**Prompt:**
+> Replace the footer with the exact footer HTML and CSS from the Agency State main website (agency-state repo index.html). Copy it exactly — monogram, wordmark, 'Built with Claude Code,' and all associated styles. Don't recreate it, copy it.
+
+**What was built:**
+- Replaced the previously-adapted footer CSS block with the verbatim CSS from `/Users/gregappler/Claude Code Projects/agency-state/index.html` lines 485–530 + the `@media (max-width:768px)` rule at 576–580
+- Replaced the footer markup with the exact HTML from lines 727–738 (uses `.container`, `.wordmark` classes — no name changes)
+- Resolved CSS custom properties inline since agency-state uses `var(--border)`, `var(--text)`, `var(--text-secondary)` which don't exist in this project. Substituted literal values from agency-state's `:root` (`#E0DFDC`, `#1A1A1A`, `#5C5C5C`) so the visual output matches exactly
+- `.container` class added scoped under `footer` to avoid colliding with any downstream usage
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 03:00] Tune Iframe Heights per Tool
+
+**Prompt:**
+> Check each embedded iframe preview. Open each tool HTML file and determine if the current iframe height (520px) shows enough of the tool to be meaningful without scrolling inside the iframe. If any tool needs more height to show its key content, increase that specific iframe's height. Pay attention to the dashboard, budget allocator, campaign simulator, and customer segments — these tend to need more vertical space.
+
+**What was built:**
+- Delegated evaluation to an Explore agent that inspected each tool's CSS/layout and estimated how much vertical space each needs to reach its "payoff" content (charts, control panel + KPIs, segment cards, ad variants, etc.)
+- Applied per-iframe `style="height:Npx"` overrides in `index.html`:
+  - dashboard.html: 520 → **740** (surface full KPI strip + first chart)
+  - budget_allocator.html: 520 → **720** (sidebar controls + KPI grid)
+  - campaign_simulator.html: 520 → **760** (inputs + KPIs + chart preview)
+  - customer_segments.html: 600 → **800** (segment detail card content)
+  - competitive_intel.html: 520 → **760** (full competitor card)
+  - content_repurposer.html: 520 → **800** (source + comparison strip + first platform panel)
+  - meta_ad_generator.html: 600 → **880** (one full ad variant incl. score panel)
+  - landing_page.html: **600 (unchanged)** — already adequate
+- Default `.embed-iframe` height (520px) left as the fallback for anything unstyled
+
+**Key decisions:**
+- Used inline style overrides rather than creating height-variant CSS classes to keep per-tool tuning visible at the call site
+- Mobile breakpoint still forces all iframes to 380px via `.embed-iframe{height:380px}` — left untouched since mobile users can't meaningfully interact with dense tools anyway
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 02:45] Increase Hero Top Padding
+
+**Prompt:**
+> Add 40px more padding to the top of the .hero section to create breathing room above the title
+
+**What was built:**
+- Bumped `.hero` top padding from 100px to 140px (desktop) and from 80px to 120px (mobile ≤900px) to add breathing room above the title
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 02:40] Add Italic Line to Intro Section
+
+**Prompt:**
+> Add a line after the intro: 'Each tool serves a unique purpose but they all share the same data and inform each other.' Style as italic, secondary text color.
+
+**What was built:**
+- Inserted a new paragraph after the "twelve tools, in the order they were built" line in `#step-intro`, styled italic in the `--t3` secondary text color, placed just before the GitHub repo link
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 02:30] Add Context-Reframing Paragraph to Methodology
+
+**Prompt:**
+> In the methodology section, the content is good — keep it. But add a paragraph at the end reframing in context terms: 'Every team has operational knowledge scattered across spreadsheets, email threads, and people's heads. These tools work because they were built from that context — Yowie's brand voice, audience data, and performance history. The same methodology applies to your team. Capture the context, build sequentially, and the tools reflect how your business actually works.'
+
+**What was built:**
+- Appended the new closing paragraph to the `#step-method` section, preserving existing copy and matching the paragraph styling
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 02:15] Replace Footer with Agency State Lockup
+
+**Prompt:**
+> Replace the footer with the same footer used in the agency operations demo — Agency State monogram + wordmark on the left, 'Built with Claude Code' on the right. Remove Yowie branding from the footer.
+
+**What was built:**
+- Copied `mark.svg` (Agency State monogram) from the agency-state repo into this project's `assets/`
+- Replaced the footer markup with the demo-agency-operations footer structure: 56px monogram + stacked `agencystate` wordmark / `agencystate.ai` caption on the left, "Built with Claude Code" on the right
+- Replaced the `.footer` CSS with the matching classes (`footer-container`, `footer-left`, `footer-mark`, `footer-lockup`, `footer-wordmark`, `footer-right`) adapted to this project's theme tokens
+- Removed the Yowie attribution line
+
+**Files modified:**
+- `index.html`
+- `assets/mark.svg` (new)
+- `docs/process_log.md`
+
+## [2026-04-11 02:00] Replace CTA Section Copy
+
+**Prompt:**
+> Replace the CTA section. Title: 'Build tools like these for your team.' Description: 'Agency State teaches professionals how to capture collective knowledge and put AI to work with it.' Link to agencystate.ai. Remove 'Your next campaign, built in an afternoon.'
+
+**What was built:**
+- Replaced the CTA title and subtitle with the new copy
+- Kept the existing `Visit Agency State` button linking to agencystate.ai and the `agencystate.ai` caption below
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 01:50] Trim "other" from Intro Link Sentence
+
+**Prompt:**
+> brand, data, and other related context. - remove "other"
+
+**What was built:**
+- Updated the intro trailing sentence to read "...for brand, data, and related context."
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 01:45] Add GitHub Repo Link to Intro
+
+**Prompt:**
+> Add a line at the end of the intro section: 'See the GitHub repo for brand, data, and other related context.' Link 'GitHub repo' to https://github.com/gappler/demo-marketing-operations
+
+**What was built:**
+- Added a trailing paragraph to the intro section with the requested sentence, linking "GitHub repo" to the repository URL (opens in new tab, styled with `--grn` accent color and underline)
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 01:30] Restyle Prompt Blocks
+
+**Prompt:**
+> Change the prompt styling across all tool sections. Remove the dark background blocks. Display prompts as italic text with a small bold 'Prompt:' label, matching the secondary text color. Same treatment as the agency operations demo.
+
+**What was built:**
+- Replaced the dark-bg `.prompt-block` styling with a minimal inline treatment matching `demo-agency-operations/index.html`:
+  - No background, border, or padding
+  - `.prompt-label` rendered inline, bold, non-italic, secondary color (`--t3`)
+  - `.prompt-text` rendered inline, italic, same secondary color
+- Updated all label markup from `Prompt` to `Prompt:` (replace_all)
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 01:15] Remove White Hero Wordmark
+
+**Prompt:**
+> remove the white on black logo at the top of page
+
+**What was built:**
+- Removed the `.wordmark` anchor/img from the hero section and its associated CSS block
+- The dark wordmark in the sticky nav remains as the sole Agency State logo on the page
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
+## [2026-04-11 01:00] Sticky Nav Wordmark Swap
+
+**Prompt:**
+> In the sticky nav, replace the Yowie logo/text with the Agency State wordmark SVG (dark version). Link it to agencystate.ai. The wordmark file is at assets/agency-state-wordmark.svg — copy it from the agency-state repo if it's not already in this repo's assets folder.
+
+**What was built:**
+- Copied `agency-state-wordmark.svg` (dark version) from the agency-state repo into this project's `assets/`
+- Replaced the `Yow<em>i</em>e` text logo in the sticky nav with an `<img>` of the dark wordmark wrapped in a link to agencystate.ai (opens in new tab)
+- Updated `.nav-logo` CSS to be a flex image container (22px height) instead of text styles
+
+**Files modified:**
+- `index.html`
+- `assets/agency-state-wordmark.svg` (new)
+- `docs/process_log.md`
+
+## [2026-04-11 00:30] Agency State SVG Wordmark in Hero
+
+**Prompt:**
+> remove the Yowie brand wordmark at the top left and Add the Agency State white wordmark SVG to the top left of the hero. Copy the wordmark implementation from the agency operations demo index.html — same positioning, same styling, same link to agencystate.ai. The white wordmark file is at assets/agency-state-wordmark-white.svg.
+
+**What was built:**
+- Created `assets/` directory and copied `agency-state-wordmark-white.svg` from the demo-agency-operations project
+- Replaced the earlier text-based `.hero-wordmark` with the `.wordmark` class lifted verbatim from demo-agency-operations/index.html (dark rounded pill, 20px/24px offset, backdrop blur, hover darkens)
+- Removed the now-redundant mobile override for the wordmark
+
+**Key decisions:**
+- Copied CSS and markup exactly from demo-agency-operations for consistency across demos
+- Asset copied into this project rather than linked cross-project so index.html remains self-contained
+
+**Files modified:**
+- `index.html`
+- `assets/agency-state-wordmark-white.svg` (new)
+- `docs/process_log.md`
+
+## [2026-04-11 00:00] Hero Section Rewrite
+
+**Prompt:**
+> Update the hero section. Add the Agency State wordmark (white version) in the top left as a link to agencystate.ai (position: absolute, not fixed — it should scroll with the hero). Change the hero content to: Title: 'Demo: Yowie Marketing Operations'; Subtitle: 'A DTC outdoor gear brand with one product line and a $25K marketing budget. Twelve tools built with Claude Code to run the entire marketing operation. Scroll through to see how.' Remove the 'Built in an afternoon' tag line. Remove the stats strip from the hero — the tools themselves show the numbers. Remove the 'Scroll to begin' indicator at the bottom.
+
+**What was built:**
+- Hero section rewritten with new title and subtitle
+- Agency State wordmark added top-left as `position:absolute` text link to agencystate.ai (no image asset exists; used styled text in white serif)
+- Removed `.hero-tag`, `.hero-stats`, `.hero-stat*`, `.hero-scroll` CSS and markup
+- Updated `<title>` tag to "Demo: Yowie Marketing Operations"
+- Mobile breakpoint adjusted so wordmark scales and hero padding accommodates it
+
+**Key decisions:**
+- Text wordmark rather than SVG since no logo asset exists in the repo
+- `position:absolute` per instructions — scrolls with hero as requested
+- Dropped the `.hero-stats` responsive rule alongside the removed element
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
 ## [2026-04-08 00:00] Skills Inventory and Methodology Notes
 
 **Prompt:**

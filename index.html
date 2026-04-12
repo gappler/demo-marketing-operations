@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Built in an afternoon with Claude Code</title>
+<title>Demo: Yowie Marketing Operations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f5f4f0;--bg2:#eeedea;--bg3:#fff;--bg4:#f9f8f6;
@@ -28,8 +28,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 /* Navigation */
 .nav{position:fixed;top:3px;left:0;right:0;z-index:100;padding:14px 40px;display:flex;justify-content:space-between;align-items:center;transition:all .4s;background:rgba(245,244,240,.97);backdrop-filter:blur(12px);border-bottom:1px solid transparent}
 .nav.scrolled{border-bottom-color:var(--bdr)}
-.nav-logo{font-family:var(--fh);font-size:20px;color:var(--t1);text-decoration:none;letter-spacing:-.3px;font-weight:500}
-.nav-logo em{font-style:italic;color:var(--grn)}
+.nav-logo{display:inline-flex;align-items:center;text-decoration:none}
+.nav-logo img{display:block;height:22px;width:auto}
 .nav-right{display:flex;align-items:center;gap:8px}
 .nav-counter{font-family:var(--fm);font-size:11px;color:var(--t3);letter-spacing:.5px}
 .nav-btn{background:none;border:1px solid var(--bdr);color:var(--t2);font-family:var(--fm);font-size:11px;padding:6px 14px;cursor:pointer;transition:all .2s;letter-spacing:.5px}
@@ -38,17 +38,12 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .nav-btn:disabled:hover{border-color:var(--bdr);color:var(--t2)}
 
 /* Hero */
-.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:100px 40px 60px;position:relative;background:#1a1916;color:#f5f4f0}
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:140px 40px 60px;position:relative;background:#1a1916;color:#f5f4f0}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 50% 40%,rgba(90,122,74,.12),transparent)}
 .hero-tag{font-family:var(--fm);font-size:11px;color:#8aaa7a;letter-spacing:3px;text-transform:uppercase;margin-bottom:24px}
 .hero-title{font-family:var(--fh);font-size:clamp(44px,7vw,80px);font-weight:300;line-height:1.1;letter-spacing:-2px;margin-bottom:20px;max-width:900px;color:#f5f4f0}
 .hero-title em{font-style:italic;color:#8aaa7a}
-.hero-sub{font-size:19px;font-weight:300;color:#a8a598;max-width:600px;line-height:1.7;margin-bottom:40px}
-.hero-stats{display:flex;gap:48px;align-items:center}
-.hero-stat{text-align:center}
-.hero-stat-val{font-family:var(--fh);font-size:42px;font-weight:400;color:#f5f4f0;letter-spacing:-1px}
-.hero-stat-label{font-family:var(--fm);font-size:10px;color:#7a7868;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
-.hero-scroll{position:absolute;bottom:40px;font-family:var(--fm);font-size:10px;color:#4a4840;letter-spacing:2px;text-transform:uppercase}
+.hero-sub{font-size:19px;font-weight:300;color:#a8a598;max-width:600px;line-height:1.7}
 
 /* Section */
 .section{padding:100px 40px;border-top:1px solid var(--bdr);position:relative}
@@ -66,10 +61,10 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .section-problem{font-size:15px;color:var(--t2);margin-bottom:32px;max-width:700px;line-height:1.7;font-weight:300}
 
 /* Prompt display */
-.prompt-block{background:#1a1916;border:1px solid #2a2926;padding:20px 24px;margin-bottom:32px;position:relative;border-radius:4px}
-.prompt-label{font-family:var(--fm);font-size:10px;color:#8aaa7a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.prompt-label::before{content:'>';color:#8aaa7a}
-.prompt-text{font-family:var(--fm);font-size:13px;color:#a8a598;line-height:1.6;white-space:pre-wrap}
+.prompt-block{margin-bottom:24px;max-width:800px;color:var(--t3);font-size:15px;line-height:1.7}
+.prompt-label{display:inline;font-family:var(--fb);font-size:15px;font-weight:700;color:var(--t3);letter-spacing:0;text-transform:none;margin:0}
+.prompt-label::after{content:' '}
+.prompt-text{display:inline;font-family:var(--fb);font-size:15px;font-style:italic;color:var(--t3);line-height:1.7}
 
 /* Output display */
 .output-frame{border:1px solid var(--bdr);background:var(--bg3);overflow:hidden;margin-bottom:24px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
@@ -130,13 +125,67 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 .cta-below{font-family:var(--fm);font-size:11px;color:#5a5848;margin-top:20px;letter-spacing:.5px;position:relative}
 
 /* Footer */
-.footer{border-top:1px solid var(--bdr);padding:32px 40px;display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;color:var(--t4);letter-spacing:.5px;background:var(--bg)}
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid #E0DFDC;
+        }
+
+        footer .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            color: #5C5C5C;
+        }
+
+        .footer-mark {
+            width: 56px;
+            height: 56px;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .footer-lockup {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .footer-lockup .wordmark {
+            height: 18px;
+            width: auto;
+            display: block;
+        }
+
+        .footer-right {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8125rem;
+            color: #5C5C5C;
+        }
+
+        @media (max-width: 768px) {
+            footer .container {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+        }
 
 /* Responsive */
 @media(max-width:900px){
-  .hero{padding:60px 24px}
+  .hero{padding:120px 24px 60px}
   .section{padding:60px 24px}
-  .hero-stats{flex-direction:column;gap:24px}
   .split{grid-template-columns:1fr}
   .email-strip{grid-template-columns:repeat(3,1fr)}
   .result-grid{grid-template-columns:repeat(2,1fr)}
@@ -152,7 +201,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 
 <!-- Nav -->
 <nav class="nav" id="nav">
-  <a href="#" class="nav-logo">Yow<em>i</em>e</a>
+  <a href="https://agencystate.ai" target="_blank" class="nav-logo"><img src="assets/agency-state-wordmark.svg" alt="Agency State"></a>
   <div class="nav-right">
     <span class="nav-counter" id="navCounter">Intro</span>
     <button class="nav-btn" id="btnPrev" onclick="navigateStep(-1)" disabled>&larr; Prev</button>
@@ -162,14 +211,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
 
 <!-- Hero -->
 <section class="hero" id="step-0">
-  <div class="hero-tag">A demonstration</div>
-  <h1 class="hero-title">Built in an <em>afternoon</em> with Claude Code</h1>
-  <p class="hero-sub">One conversation. Twelve marketing tools. A complete campaign operation for a fictional DTC brand — from brand definition to customer segmentation — built entirely through AI-driven prompts.</p>
-  <div class="hero-stats">
-    <div class="hero-stat"><div class="hero-stat-val">12</div><div class="hero-stat-label">Tools Built</div></div>
-    <div class="hero-stat"><div class="hero-stat-val">48</div><div class="hero-stat-label">Files Created</div></div>
-    <div class="hero-stat"><div class="hero-stat-val">1</div><div class="hero-stat-label">Session</div></div>
-  </div>
+  <h1 class="hero-title">Demo: Yowie Marketing Operations</h1>
+  <p class="hero-sub">A DTC outdoor gear brand with one product line and a $25K marketing budget. Twelve tools built with Claude Code to run the entire marketing operation. Scroll through to see how.</p>
 </section>
 
 <!-- Intro narrative -->
@@ -180,7 +223,9 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div style="margin-top:32px;font-size:17px;font-weight:300;color:var(--t2);line-height:1.8">
       <p style="margin-bottom:20px">Launching a campaign usually means weeks of coordination — brand strategists, data analysts, designers, copywriters, media buyers. Each handoff adds delay. Each silo introduces drift. By the time the work ships, the window has moved.</p>
       <p style="margin-bottom:20px">This demo is a proof of concept: twelve working marketing tools built in a single afternoon with Claude Code. Not mockups. Not slide decks. Interactive dashboards, production-ready email sequences, ad copy scored against brand guidelines, and a campaign simulator grounded in historical performance — all for a fictional DTC brand called Yowie.</p>
-      <p>What follows are the twelve tools, in the order they were built, with the exact prompts that created them.</p>
+      <p style="margin-bottom:20px">What follows are the twelve tools, in the order they were built, with the exact prompts that created them.</p>
+      <p style="margin-bottom:20px;font-style:italic;color:var(--t3)">Each tool serves a unique purpose but they all share the same data and inform each other.</p>
+      <p>See the <a href="https://github.com/gappler/demo-marketing-operations" target="_blank" rel="noopener" style="color:var(--grn);text-decoration:underline">GitHub repo</a> for brand, data, and related context.</p>
     </div>
   </div>
 </section>
@@ -192,7 +237,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <h2 class="section-title">Brand <em>Definition</em></h2>
     <p class="section-problem">Every downstream tool needs a source of truth. Without a constrained brand definition — specific product, specific audience, specific voice — AI outputs drift toward generic marketing language.</p>
     <div class="prompt-block">
-      <div class="prompt-label">Prompt</div>
+      <div class="prompt-label">Prompt:</div>
       <div class="prompt-text">You are a senior brand strategist. Design a simulated DTC brand called "Yowie" — premium outdoor gear, adults 40-65, anti-hype positioning. Include product definition, audience profile, positioning, brand voice, and one campaign objective.</div>
     </div>
     <div class="result-grid">
@@ -228,7 +273,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <h2 class="section-title">Historical <em>Data</em></h2>
     <p class="section-problem">AI marketing tools produce generic analysis without historical data. This step generated 12 months of internally consistent performance data across five channels — with seasonal patterns that mirror real outdoor gear brands.</p>
     <div class="prompt-block">
-      <div class="prompt-label">Prompt</div>
+      <div class="prompt-label">Prompt:</div>
       <div class="prompt-text">Generate 12 months of historical marketing data for Yowie. Include monthly CSVs for web traffic, email campaigns, Meta ads, social media, and customer orders. Make it realistic with seasonal patterns.</div>
     </div>
     <div class="result-grid">
@@ -258,8 +303,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">03</span><span class="step-phase">Analysis</span></div>
     <h2 class="section-title">Performance <em>Dashboard</em></h2>
     <p class="section-problem">Raw CSV data is useless without visualization. This dashboard turns 12 months of data into an interactive view of revenue trends, CAC, channel efficiency, email performance, and regional distribution.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a marketing performance dashboard for Yowie that visualizes key metrics — monthly revenue, CAC, channel spend vs. return, email performance, and web traffic trends. Make it interactive HTML.</div></div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/dashboard.html</span><a href="tools/dashboard.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/dashboard.html" class="embed-iframe" loading="lazy"></iframe></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a marketing performance dashboard for Yowie that visualizes key metrics — monthly revenue, CAC, channel spend vs. return, email performance, and web traffic trends. Make it interactive HTML.</div></div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/dashboard.html</span><a href="tools/dashboard.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/dashboard.html" class="embed-iframe" style="height:740px" loading="lazy"></iframe></div>
   </div>
 </section>
 
@@ -268,7 +313,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">04</span><span class="step-phase">Analysis</span></div>
     <h2 class="section-title">Monthly <em>Reports</em></h2>
     <p class="section-problem">Dashboards show numbers. Reports explain what they mean. This Python tool reads the data and generates written analysis with insights and recommendations — in Yowie's brand voice.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a tool that reads the marketing data and generates a written monthly report with metrics, trends, insights, and recommendations. Use the Yowie brand voice.</div></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a tool that reads the marketing data and generates a written monthly report with metrics, trends, insights, and recommendations. Use the Yowie brand voice.</div></div>
     <div class="result-grid">
       <div class="result-cell"><div class="result-val" style="color:var(--t1)">12</div><div class="result-label">Reports Generated</div></div>
       <div class="result-cell"><div class="result-val" style="color:var(--grn-b)">3</div><div class="result-label">Run Modes</div></div>
@@ -298,8 +343,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">05</span><span class="step-phase">Planning</span></div>
     <h2 class="section-title">Budget <em>Allocator</em></h2>
     <p class="section-problem">How should a $25K campaign budget be split across Meta, email, content, social, and landing page? This tool uses historical efficiency scores with diminishing returns modeling to recommend an optimal allocation.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a budget allocator that reads historical channel performance, calculates ROI by channel, and recommends an optimal split. Make it interactive with sliders.</div></div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/budget_allocator.html</span><a href="tools/budget_allocator.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/budget_allocator.html" class="embed-iframe" loading="lazy"></iframe></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a budget allocator that reads historical channel performance, calculates ROI by channel, and recommends an optimal split. Make it interactive with sliders.</div></div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/budget_allocator.html</span><a href="tools/budget_allocator.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/budget_allocator.html" class="embed-iframe" style="height:720px" loading="lazy"></iframe></div>
   </div>
 </section>
 
@@ -308,7 +353,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">06</span><span class="step-phase">Production</span></div>
     <h2 class="section-title">Email <em>Sequence</em></h2>
     <p class="section-problem">A 5-email nurture series for 4,200 subscribers over 30 days. Trust arc, not pressure arc — no urgency tactics. Each email has subject line, preview text, body copy, and CTA, all in production-ready HTML.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a 5-email nurture series for the 4,200-subscriber list using the brand voice. Each email: subject line, preview text, body copy, CTA. Output as HTML templates and a markdown overview.</div></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a 5-email nurture series for the 4,200-subscriber list using the brand voice. Each email: subject line, preview text, body copy, CTA. Output as HTML templates and a markdown overview.</div></div>
     <div class="email-strip">
       <div class="email-card" onclick="window.open('tools/email_sequence/email_01_announcement.html','_blank')"><div class="email-day">Day 1</div><div class="email-subj">One pack. That's it.</div></div>
       <div class="email-card" onclick="window.open('tools/email_sequence/email_02_materials.html','_blank')"><div class="email-day">Day 5</div><div class="email-subj">What sailcloth nylon actually means</div></div>
@@ -325,7 +370,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">07</span><span class="step-phase">Production</span></div>
     <h2 class="section-title">Landing <em>Page</em></h2>
     <p class="section-problem">Where every channel converges. A responsive page with hero, features, specs, social proof, warranty math, and CTA — designed like an editorial magazine feature, not a Shopify template.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a landing page for the Basecamp 45L campaign. Hero section, product features, social proof, and CTA. Responsive. Use the brand voice.</div></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a landing page for the Basecamp 45L campaign. Hero section, product features, social proof, and CTA. Responsive. Use the brand voice.</div></div>
     <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/landing_page.html</span><a href="tools/landing_page.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/landing_page.html" class="embed-iframe" style="height:600px" loading="lazy"></iframe></div>
   </div>
 </section>
@@ -335,8 +380,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">08</span><span class="step-phase">Strategy</span></div>
     <h2 class="section-title">Competitive <em>Intelligence</em></h2>
     <p class="section-problem">A brand doesn't exist in isolation. This tracker compares Yowie against YETI, Stanley, Hydro Flask, and Osprey with side-by-side analysis, positioning maps, and channel matrices.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a competitive intelligence tracker comparing Yowie against YETI, Stanley, Hydro Flask, and Osprey. Interactive side-by-side comparison. Use web search for real data.</div></div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/competitive_intel.html</span><a href="tools/competitive_intel.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/competitive_intel.html" class="embed-iframe" loading="lazy"></iframe></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a competitive intelligence tracker comparing Yowie against YETI, Stanley, Hydro Flask, and Osprey. Interactive side-by-side comparison. Use web search for real data.</div></div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/competitive_intel.html</span><a href="tools/competitive_intel.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/competitive_intel.html" class="embed-iframe" style="height:760px" loading="lazy"></iframe></div>
   </div>
 </section>
 
@@ -345,8 +390,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">09</span><span class="step-phase">Production</span></div>
     <h2 class="section-title">Meta Ad <em>Generator</em></h2>
     <p class="section-problem">Five ad variants, each taking a different angle — materials, anti-hype, warranty, use case, product intro. Each scored against brand voice guidelines with weighted dimensions and written rationale.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Generate 5 Meta ad variants — headline, primary text, CTA. Score each against brand voice guidelines. Output as interactive HTML with ads and scores side by side.</div></div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/meta_ad_generator.html</span><a href="tools/meta_ad_generator.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/meta_ad_generator.html" class="embed-iframe" style="height:600px" loading="lazy"></iframe></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Generate 5 Meta ad variants — headline, primary text, CTA. Score each against brand voice guidelines. Output as interactive HTML with ads and scores side by side.</div></div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/meta_ad_generator.html</span><a href="tools/meta_ad_generator.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/meta_ad_generator.html" class="embed-iframe" style="height:880px" loading="lazy"></iframe></div>
   </div>
 </section>
 
@@ -355,8 +400,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">10</span><span class="step-phase">Planning</span></div>
     <h2 class="section-title">Campaign <em>Simulator</em></h2>
     <p class="section-problem">What happens when we spend $25K over 30 days in summer? Full-funnel projections — impressions, clicks, conversions, revenue — with seasonal modifiers, diminishing returns, and scenario planning.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a campaign performance simulator. Input budget, channel split, duration. Project impressions, clicks, conversions, revenue, ROAS. Interactive with real-time updates.</div></div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/campaign_simulator.html</span><a href="tools/campaign_simulator.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/campaign_simulator.html" class="embed-iframe" loading="lazy"></iframe></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a campaign performance simulator. Input budget, channel split, duration. Project impressions, clicks, conversions, revenue, ROAS. Interactive with real-time updates.</div></div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/campaign_simulator.html</span><a href="tools/campaign_simulator.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/campaign_simulator.html" class="embed-iframe" style="height:760px" loading="lazy"></iframe></div>
   </div>
 </section>
 
@@ -365,8 +410,8 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">11</span><span class="step-phase">Production</span></div>
     <h2 class="section-title">Content <em>Repurposer</em></h2>
     <p class="section-problem">One blog post, five platform-specific versions — LinkedIn, Instagram, email, Meta ad, tweet thread. Each genuinely rewritten for its platform, not truncated. All scored against brand voice.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Take a blog post about the Basecamp 45L in the Wind River Range. Generate versions for LinkedIn, Instagram, email, Meta ad, and tweet thread. Match brand voice. Show character counts and platform guidelines.</div></div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/content_repurposer.html</span><a href="tools/content_repurposer.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/content_repurposer.html" class="embed-iframe" loading="lazy"></iframe></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Take a blog post about the Basecamp 45L in the Wind River Range. Generate versions for LinkedIn, Instagram, email, Meta ad, and tweet thread. Match brand voice. Show character counts and platform guidelines.</div></div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/content_repurposer.html</span><a href="tools/content_repurposer.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/content_repurposer.html" class="embed-iframe" style="height:800px" loading="lazy"></iframe></div>
   </div>
 </section>
 
@@ -375,7 +420,7 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
     <div class="step-badge"><span class="step-number">12</span><span class="step-phase">Analysis</span></div>
     <h2 class="section-title">Customer <em>Segments</em></h2>
     <p class="section-problem">643 orders contain five distinct behavioral segments — each with different acquisition channels, LTV potential, and messaging needs. Segmentation turns one audience into five conversations.</p>
-    <div class="prompt-block"><div class="prompt-label">Prompt</div><div class="prompt-text">Build a customer segment analyzer. Read order data, identify 3-5 segments based on purchase patterns, geography, demographics. Profile each with LTV and messaging approach.</div></div>
+    <div class="prompt-block"><div class="prompt-label">Prompt:</div><div class="prompt-text">Build a customer segment analyzer. Read order data, identify 3-5 segments based on purchase patterns, geography, demographics. Profile each with LTV and messaging approach.</div></div>
     <div class="result-grid">
       <div class="result-cell"><div class="result-val" style="color:var(--grn-b)">Core</div><div class="result-label">22% &middot; $620 LTV</div></div>
       <div class="result-cell"><div class="result-val" style="color:var(--slt)">Subscribers</div><div class="result-label">21% &middot; $540 LTV</div></div>
@@ -383,44 +428,35 @@ body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:17px;l
       <div class="result-cell"><div class="result-val" style="color:var(--gld)">Gifters</div><div class="result-label">16% &middot; $710 LTV</div></div>
       <div class="result-cell"><div class="result-val" style="color:var(--cly)">Referrals</div><div class="result-label">13% &middot; $580 LTV</div></div>
     </div>
-    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/customer_segments.html</span><a href="tools/customer_segments.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/customer_segments.html" class="embed-iframe" style="height:600px" loading="lazy"></iframe></div>
-  </div>
-</section>
-
-<!-- How this was built -->
-<section class="section" id="step-method">
-  <div class="section-inner" style="max-width:700px">
-    <div class="step-badge"><span class="step-phase">The methodology</span></div>
-    <h2 class="section-title">Foundation first. Then <em>sequence</em>.</h2>
-    <div style="margin-top:32px;font-size:17px;font-weight:300;color:var(--t2);line-height:1.8">
-      <p style="margin-bottom:20px">This wasn't twelve isolated prompts. It was one continuous build where each tool fed the next.</p>
-      <p style="margin-bottom:20px">The brand definition constrained every word of copy. The historical data grounded every chart and forecast. The dashboard insights shaped the budget allocator. The brand voice governed the email sequences, the ad variants, the landing page. The campaign simulator used actual channel performance to project outcomes.</p>
-      <p style="margin-bottom:20px">The order matters. You can't score ad copy against brand guidelines that don't exist yet. You can't allocate budget without channel performance data. You can't segment customers without order history. Each layer makes the next layer possible — and more accurate.</p>
-      <p>This is what separates a collection of AI outputs from a coherent system: the architecture of the conversation itself.</p>
-    </div>
+    <div class="embed-frame"><div class="embed-toolbar"><div class="output-dots"><div class="output-dot"></div><div class="output-dot"></div><div class="output-dot"></div></div><span class="output-filename">tools/customer_segments.html</span><a href="tools/customer_segments.html" target="_blank" class="embed-link">Open full &rarr;</a></div><iframe src="tools/customer_segments.html" class="embed-iframe" style="height:800px" loading="lazy"></iframe></div>
   </div>
 </section>
 
 <!-- CTA -->
 <section class="cta-section" id="step-cta">
-  <div class="hero-tag" style="margin-bottom:24px">Agency State</div>
-  <h2 class="cta-title" style="font-family:var(--fh)">Your next campaign, built in an <em>afternoon</em>.</h2>
-  <p class="cta-sub">Agency State helps businesses build marketing systems like this one — using AI to compress weeks of agency work into focused, high-output sessions. Strategy, data, creative, and analysis, delivered as working tools you own.</p>
+  <h2 class="cta-title" style="font-family:var(--fh)">Build tools like these for your team.</h2>
+  <p class="cta-sub">Agency State teaches professionals how to capture collective knowledge and put AI to work with it.</p>
   <a href="https://agencystate.ai" class="cta-button" target="_blank">Visit Agency State</a>
-  <div class="cta-below">agencystate.ai</div>
 </section>
 
-<footer class="footer">
-  <span>Yowie &middot; A simulated brand built to demonstrate AI-driven marketing automation</span>
-  <span>Built with Claude Code &middot; Anthropic</span>
-</footer>
+    <footer>
+        <div class="container">
+            <div class="footer-left">
+                <img src="assets/mark.svg" alt="Agency State" class="footer-mark">
+                <a href="https://agencystate.ai" target="_blank" rel="noopener" class="footer-lockup">
+                    <img src="assets/agency-state-wordmark.svg" alt="Agency State" class="wordmark">
+                </a>
+            </div>
+            <p class="footer-right">Built with Claude Code</p>
+        </div>
+    </footer>
 
 <script>
 // ============================================================
 // NAVIGATION
 // ============================================================
-const STEPS = ['step-0','step-intro','step-1','step-2','step-3','step-4','step-5','step-6','step-7','step-8','step-9','step-10','step-11','step-12','step-method','step-cta'];
-const LABELS = ['Intro','The Problem','01 Brand','02 Data','03 Dashboard','04 Reports','05 Budget','06 Email','07 Landing','08 Compete','09 Ads','10 Simulator','11 Repurpose','12 Segments','Method','Agency State'];
+const STEPS = ['step-0','step-intro','step-1','step-2','step-3','step-4','step-5','step-6','step-7','step-8','step-9','step-10','step-11','step-12','step-cta'];
+const LABELS = ['Intro','The Problem','01 Brand','02 Data','03 Dashboard','04 Reports','05 Budget','06 Email','07 Landing','08 Compete','09 Ads','10 Simulator','11 Repurpose','12 Segments','Agency State'];
 let currentStep = 0;
 
 function navigateStep(dir) {
