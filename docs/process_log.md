@@ -7,6 +7,18 @@ created: 2026-04-05
 
 # Process Log
 
+## [2026-04-13] Add Open Graph and Twitter Card Meta Tags
+
+**Prompt:**
+> please add the following meta tags inside <head>, after the <title> tag: [og:title, og:description, og:image, og:url, og:type, twitter:card, twitter:title, twitter:description, twitter:image]
+
+**What was built:**
+- Inserted OG and Twitter Card meta tags directly after `<title>` in `index.html` so link unfurls on social platforms show the Yowie Marketing Operations demo title, description, and og-image.
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
 ## [2026-04-11 04:10] Add Logo/Layout Standards to CLAUDE.md
 
 **Prompt:**
