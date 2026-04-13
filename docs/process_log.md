@@ -7,6 +7,21 @@ created: 2026-04-05
 
 # Process Log
 
+## [2026-04-13] Add Plausible Analytics
+
+**Prompt:**
+> Add Plausible analytics to index.html. Insert this block inside <head>, just before </head>: [plausible script + init snippet]. Commit and push.
+
+**What was built:**
+- Inserted the Plausible analytics script tag and init snippet immediately before `</head>` in `index.html` so page views are tracked on the Agency State demo.
+
+**Key decisions:**
+- Placed the snippet after the inline `<style>` block and directly before `</head>`, matching the user's explicit instruction.
+
+**Files modified:**
+- `index.html`
+- `docs/process_log.md`
+
 ## [2026-04-13] Add Open Graph and Twitter Card Meta Tags
 
 **Prompt:**
